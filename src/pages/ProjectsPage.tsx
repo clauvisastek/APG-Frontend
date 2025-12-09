@@ -1,7 +1,8 @@
 import { useState, useMemo } from 'react';
 import { useAuth0 } from '@auth0/auth0-react';
-import { useProjects } from '../hooks/useApi';
 import { useUserBusinessUnitFilter } from '../hooks/useUserBusinessUnitFilter';
+import { useProjectsQuery, useCreateProjectMutation, useUpdateProjectMutation, useDeleteProjectMutation, type ProjectDto } from '../hooks/useProjectsApi';
+import { useClientsQuery } from '../hooks/useClientsApi';
 import { hasAnyRole } from '../utils/roleHelpers';
 import { getUserBusinessUnitCodes, canEditProject } from '../utils/roleUtils';
 import type { Project } from '../types';
@@ -13,6 +14,7 @@ import { ProjectDetailsModal } from '../components/ProjectDetailsModal';
 import { DataTable, type DataTableColumn } from '../components/DataTable/DataTable';
 import { ImportDialog } from '../components/ImportDialog';
 import { importApi } from '../services/importApi';
+import { toast } from 'react-toastify';
 
 export const ProjectsPage = () => {
   const { user } = useAuth0();
