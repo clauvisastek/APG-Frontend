@@ -56,7 +56,7 @@ export const TechnicalAssignmentsPage = () => {
       const data = await technicalAssignmentsApi.list(filters);
       setAssignments(data);
     } catch (error) {
-      console.error('Erreur lors du chargement des AT:', error);
+      // Error handled silently
     } finally {
       setIsLoading(false);
     }
@@ -106,7 +106,6 @@ export const TechnicalAssignmentsPage = () => {
   
   const handleCreate = () => {
     if (!canManage) {
-      console.warn('Utilisateur non autorisé à créer des AT');
       return;
     }
     setEditingAssignment(undefined);
@@ -115,7 +114,6 @@ export const TechnicalAssignmentsPage = () => {
   
   const handleEdit = (assignment: TechnicalAssignment) => {
     if (!canManage) {
-      console.warn('Utilisateur non autorisé à modifier des AT');
       return;
     }
     setEditingAssignment(assignment);
@@ -124,7 +122,6 @@ export const TechnicalAssignmentsPage = () => {
   
   const handleDelete = async (assignment: TechnicalAssignment) => {
     if (!canManage) {
-      console.warn('Utilisateur non autorisé à supprimer des AT');
       return;
     }
     
@@ -133,7 +130,6 @@ export const TechnicalAssignmentsPage = () => {
         await technicalAssignmentsApi.remove(assignment.id);
         await loadAssignments();
       } catch (error) {
-        console.error('Erreur lors de la suppression:', error);
         alert('Erreur lors de la suppression de la mission AT');
       }
     }

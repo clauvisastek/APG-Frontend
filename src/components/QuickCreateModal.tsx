@@ -39,7 +39,6 @@ export const QuickCreateCountry = ({ isOpen, onClose, onCreate }: QuickCreateCou
       setErrors({});
       onClose();
     } catch (error) {
-      console.error('Error creating country:', error);
       alert('Erreur lors de la création du pays');
     } finally {
       setIsSubmitting(false);
@@ -145,7 +144,6 @@ export const QuickCreateCurrency = ({ isOpen, onClose, onCreate }: QuickCreateCu
       setErrors({});
       onClose();
     } catch (error) {
-      console.error('Error creating currency:', error);
       alert('Erreur lors de la création de la devise');
     } finally {
       setIsSubmitting(false);

@@ -22,10 +22,8 @@ export function useAuthInterceptor() {
             },
             // Use cache by default - Auth0 will refresh automatically when needed
           });
-          console.log('✅ Token obtained successfully');
           return token;
         } catch (error) {
-          console.error('❌ Error getting access token:', error);
           throw error;
         }
       });
@@ -38,8 +36,6 @@ export function useAuthInterceptor() {
           },
         });
       });
-
-      console.log('🔒 Auth interceptor configured');
     }
   }, [isAuthenticated, getAccessTokenSilently, logout]);
 }

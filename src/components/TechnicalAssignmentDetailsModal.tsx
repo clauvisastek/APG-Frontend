@@ -39,7 +39,7 @@ export const TechnicalAssignmentDetailsModal = ({
       setMarginEvolution(evolution);
       setDimensionBreakdown(breakdown);
     } catch (error) {
-      console.error('Erreur lors du chargement des analytics:', error);
+      // Error handled silently
     } finally {
       setIsLoading(false);
     }

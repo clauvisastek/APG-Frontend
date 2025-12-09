@@ -38,7 +38,6 @@ export function useAuthenticatedFetch() {
 
         return response.json();
       } catch (error) {
-        console.error('Authenticated fetch error:', error);
         throw error;
       }
     },

@@ -467,6 +467,7 @@ export const ProjectCreationWizard = ({
                     data={projectData}
                     errors={errors}
                     onChange={handleChange}
+                    readOnly={true}
                   />
                 )}
 

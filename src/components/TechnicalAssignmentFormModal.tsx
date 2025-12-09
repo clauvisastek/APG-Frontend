@@ -129,7 +129,6 @@ export const TechnicalAssignmentFormModal = ({
       }
       onSuccess();
     } catch (error) {
-      console.error('Erreur lors de la sauvegarde:', error);
       alert("Erreur lors de la sauvegarde de la mission AT");
     } finally {
       setIsSubmitting(false);

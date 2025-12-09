@@ -19,7 +19,11 @@ import { toast } from 'react-toastify';
 export const ProjectsPage = () => {
   const { user } = useAuth0();
   const buFilter = useUserBusinessUnitFilter(); // Keep this for ProjectCreationWizard
-  const { data: projects, isLoading, error } = useProjects(); // Removed BU filter - now handled by getUserBusinessUnitCodes
+  const { data: projects, isLoading, error } = useProjectsQuery();
+  const { data: clients } = useClientsQuery();
+  const createProjectMutation = useCreateProjectMutation();
+  const updateProjectMutation = useUpdateProjectMutation();
+  const deleteProjectMutation = useDeleteProjectMutation();
   
   // Wizard state
   const [isWizardOpen, setIsWizardOpen] = useState(false);
@@ -29,22 +33,14 @@ export const ProjectsPage = () => {
   const [projectToEdit, setProjectToEdit] = useState<Project | undefined>(undefined);
   
   // Details modal state
-  const [selectedProject, setSelectedProject] = useState<Project | undefined>(undefined);
+  const [selectedProject, setSelectedProject] = useState<ProjectDto | undefined>(undefined);
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
   
   // Import modal state
   const [isImportModalOpen, setIsImportModalOpen] = useState(false);
   
-  // Local projects state for CRUD (will be replaced by API calls later)
-  const [localProjects, setLocalProjects] = useState<Project[]>(projects || []);
-  
   // Determine if user can manage projects (Admin, Vente, or BU leaders)
   const canManageProjects = hasAnyRole(user, ['Admin', 'Vente', 'BU-1', 'BU-2', 'BU-3']);
-  
-  // Sync with API data
-  if (projects && localProjects.length === 0) {
-    setLocalProjects(projects);
-  }
 
   // Handlers
   const handleOpenWizard = () => {
@@ -55,63 +51,101 @@ export const ProjectsPage = () => {
     setIsWizardOpen(false);
   };
 
-  const handleWizardSubmit = (validationRequest: ProjectValidationRequest) => {
-    // Pour l'instant, on crée directement le projet (simulation)
-    // Plus tard, ceci enverra une demande de validation à l'approbateur
-    const projectData = validationRequest.project;
-    
-    const newProject: Project = {
-      id: `project-${Date.now()}`,
-      name: projectData.name,
-      code: projectData.code,
-      clientId: 'temp-client-id',
+  const handleWizardSubmit = async (validationRequest: ProjectValidationRequest) => {
+    try {
+      const projectData = validationRequest.project;
+      
+      // Find client by name
+      const client = clients?.find(c => c.name === projectData.clientName);
+      if (!client) {
+        toast.error('Client non trouvé. Veuillez créer le client d\'abord.');
+        return;
+      }
+
+      // Map wizard data to API format
+      const payload = {
+        name: projectData.name,
+        code: projectData.code,
+        clientId: client.id,
+        businessUnitId: client.businessUnitId,
+        type: projectData.type,
+        responsibleName: projectData.projectManager,
+        currency: projectData.currency,
+        startDate: projectData.startDate,
+        endDate: projectData.endDate,
+        targetMargin: projectData.margins.targetMarginPercent,
+        minMargin: projectData.margins.minMarginPercent,
+        status: 'En construction',
+        notes: `Demande de validation envoyée à ${validationRequest.approverEmail}\nÉquipe: ${projectData.teamMembers.length} membre(s)`,
+        teamMembers: projectData.teamMembers.map(tm => ({
+          id: tm.id,
+          name: `${tm.firstName} ${tm.lastName}`,
+          role: tm.role,
+          costRate: tm.internalCostRate,
+          sellRate: tm.proposedBillRate,
+          grossMargin: tm.grossMarginAmount,
+          netMargin: tm.netMarginPercent,
+        })),
+      };
+
+      await createProjectMutation.mutateAsync(payload);
+      handleCloseWizard();
+      toast.success(`Projet "${projectData.name}" créé avec succès !`);
+    } catch (error: any) {
+      toast.error(error?.message || 'Erreur lors de la création du projet');
+    }
+  };
+
+  // Map ProjectDto to Project for compatibility
+  const mapProjectDtoToProject = (dto: ProjectDto): Project => {
+    return {
+      id: dto.id.toString(),
+      name: dto.name,
+      code: dto.code,
+      clientId: dto.clientId.toString(),
       client: {
-        id: 1,
-        name: projectData.clientName,
-        code: projectData.clientCode || '',
+        id: dto.clientId,
+        name: dto.clientName,
+        code: dto.clientCode,
         sectorId: 1,
-        sectorName: projectData.clientSector || 'N/A',
-        businessUnitId: 1,
-        businessUnitCode: 'BU-1',
-        businessUnitName: 'Banking France',
+        sectorName: '',
+        businessUnitId: dto.businessUnitId,
+        businessUnitCode: dto.businessUnitCode,
+        businessUnitName: dto.businessUnitName,
         countryId: 1,
-        countryName: projectData.clientCountry || 'Canada',
+        countryName: '',
         currencyId: 1,
-        currencyCode: (projectData.currency as Currency) || 'CAD',
-        defaultTargetMarginPercent: projectData.margins.targetMarginPercent,
-        defaultMinimumMarginPercent: projectData.margins.minMarginPercent,
+        currencyCode: dto.currency,
         isFinancialConfigComplete: false,
-        financialConfigStatusMessage: 'N/A',
-        contactName: 'N/A',
-        contactEmail: 'N/A',
+        financialConfigStatusMessage: '',
+        contactName: '',
+        contactEmail: '',
         isActive: true,
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
+        createdAt: dto.createdAt,
       },
-      type: projectData.type === 'T&M' ? ProjectType.TIME_AND_MATERIALS : ProjectType.FIXED_PRICE,
-      responsibleName: projectData.projectManager,
-      currency: projectData.currency as Currency,
-      startDate: projectData.startDate,
-      endDate: projectData.endDate,
-      targetMargin: projectData.margins.targetMarginPercent,
-      minMargin: projectData.margins.minMarginPercent,
-      status: ProjectStatus.CONSTRUCTION,
-      notes: `Demande de validation envoyée à ${validationRequest.approverEmail}\nÉquipe: ${projectData.teamMembers.length} membre(s)`,
-      businessUnit: { id: '1', name: 'Banking France', code: 'BU-1' },
-      businessUnitCode: 'BU-1',
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
+      type: dto.type as ProjectType,
+      responsibleName: dto.responsibleName || undefined,
+      currency: dto.currency as Currency,
+      startDate: dto.startDate,
+      endDate: dto.endDate,
+      targetMargin: dto.targetMargin,
+      minMargin: dto.minMargin,
+      status: dto.status as ProjectStatus,
+      notes: dto.notes || undefined,
+      businessUnit: {
+        id: dto.businessUnitId.toString(),
+        name: dto.businessUnitName,
+        code: dto.businessUnitCode,
+      },
+      businessUnitCode: dto.businessUnitCode,
+      ytdRevenue: dto.ytdRevenue || undefined,
+      createdAt: dto.createdAt,
+      updatedAt: dto.updatedAt || dto.createdAt,
     };
-    
-    setLocalProjects(prev => [...prev, newProject]);
-    handleCloseWizard();
-    
-    // Afficher un message de succès
-    alert(`Demande de validation envoyée avec succès à ${validationRequest.approverEmail} pour le projet "${projectData.name}" !`);
   };
 
   // Handlers for details modal
-  const handleRowClick = (project: Project) => {
+  const handleRowClick = (project: ProjectDto) => {
     setSelectedProject(project);
     setIsDetailsOpen(true);
   };
@@ -122,9 +156,9 @@ export const ProjectsPage = () => {
   };
 
   // Handler for edit
-  const handleEdit = (project: Project, e: React.MouseEvent) => {
-    e.stopPropagation(); // Prevent row click
-    setProjectToEdit(project);
+  const handleEdit = (project: ProjectDto, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setProjectToEdit(mapProjectDtoToProject(project));
     setIsEditWizardOpen(true);
   };
 
@@ -132,21 +166,23 @@ export const ProjectsPage = () => {
   const handleEditSuccess = () => {
     setIsEditWizardOpen(false);
     setProjectToEdit(undefined);
-    // Refresh projects list (React Query will automatically refetch)
   };
 
   // Handler for delete
-  const handleDelete = (project: Project, e: React.MouseEvent) => {
-    e.stopPropagation(); // Prevent row click
+  const handleDelete = async (project: ProjectDto, e: React.MouseEvent) => {
+    e.stopPropagation();
     
     const confirmDelete = window.confirm(
       `Êtes-vous sûr de vouloir supprimer le projet "${project.name}" ?\n\nCette action est irréversible.`
     );
     
     if (confirmDelete) {
-      setLocalProjects(prev => prev.filter(p => p.id !== project.id));
-      // TODO: Call API to delete project
-      alert(`Projet "${project.name}" supprimé avec succès`);
+      try {
+        await deleteProjectMutation.mutateAsync(project.id);
+        toast.success(`Projet "${project.name}" supprimé avec succès`);
+      } catch (error: any) {
+        toast.error(error?.message || 'Erreur lors de la suppression du projet');
+      }
     }
   };
 
@@ -186,21 +222,19 @@ export const ProjectsPage = () => {
     ],
   };
 
-  // Use local projects or API projects
-  const displayProjects = localProjects.length > 0 ? localProjects : projects || [];
-  
   // Filter projects based on user's BU roles
   const filteredProjects = useMemo(() => {
+    if (!projects) return [];
     const buCodes = getUserBusinessUnitCodes(user);
     return buCodes.length === 0
-      ? displayProjects // Admin or CFO: no restriction
-      : displayProjects.filter(project =>
+      ? projects // Admin or CFO: no restriction
+      : projects.filter(project =>
           buCodes.includes(project.businessUnitCode)
         );
-  }, [displayProjects, user]);
+  }, [projects, user]);
 
   // Define columns for DataTable
-  const columns: DataTableColumn<Project>[] = useMemo(() => [
+  const columns: DataTableColumn<ProjectDto>[] = useMemo(() => [
     {
       id: 'name',
       label: 'Projet',
@@ -228,7 +262,7 @@ export const ProjectsPage = () => {
       id: 'client',
       label: 'Client',
       width: '15%',
-      accessor: (project) => project.client?.name || 'N/A',
+      accessor: (project) => project.clientName || 'N/A',
     },
     {
       id: 'businessUnit',
@@ -244,7 +278,7 @@ export const ProjectsPage = () => {
           fontWeight: 600,
           display: 'inline-block'
         }}>
-          {project.businessUnit.code}
+          {project.businessUnitCode}
         </span>
       ),
     },

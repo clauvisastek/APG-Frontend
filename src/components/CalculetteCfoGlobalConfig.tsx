@@ -39,7 +39,6 @@ export const CalculetteCfoGlobalConfig: React.FC<CalculetteCfoGlobalConfigProps>
         });
       }
     } catch (error) {
-      console.error('Erreur lors du chargement des paramètres globaux:', error);
       toast.error('Erreur lors du chargement des paramètres globaux');
     } finally {
       setIsLoading(false);
@@ -59,7 +58,6 @@ export const CalculetteCfoGlobalConfig: React.FC<CalculetteCfoGlobalConfigProps>
       setIsEditing(false);
       toast.success('Paramètres globaux enregistrés avec succès');
     } catch (error) {
-      console.error('Erreur lors de la sauvegarde:', error);
       toast.error('Erreur lors de la sauvegarde des paramètres');
     } finally {
       setIsSaving(false);

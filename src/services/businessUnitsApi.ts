@@ -35,13 +35,10 @@ export interface CreateSectorDto {
  * Get all business units
  */
 export async function getBusinessUnits(): Promise<BusinessUnitDto[]> {
-  console.log('🔍 getBusinessUnits called');
   try {
     const result = await fetchWithAuth<BusinessUnitDto[]>(`${API_BASE_URL}/api/BusinessUnits`);
-    console.log('✅ getBusinessUnits success:', result);
     return result;
   } catch (error) {
-    console.error('❌ getBusinessUnits error:', error);
     throw error;
   }
 }

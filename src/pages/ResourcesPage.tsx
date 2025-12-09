@@ -58,7 +58,7 @@ export const ResourcesPage = () => {
       const data = await resourcesApi.list(filters);
       setResources(data);
     } catch (error) {
-      console.error('Erreur lors du chargement des ressources:', error);
+      // Error handled silently
     } finally {
       setIsLoading(false);
     }

@@ -72,7 +72,6 @@ export const BusinessUnitFormModalNew = ({
       setAvailableSectors(sectors);
     } catch (error) {
       toast.error('Erreur lors du chargement des secteurs');
-      console.error(error);
     } finally {
       setIsLoadingSectors(false);
     }
@@ -152,7 +151,6 @@ export const BusinessUnitFormModalNew = ({
       await onSave(formData);
     } catch (error) {
       // Error is already handled in the parent component
-      console.error(error);
     } finally {
       setIsSubmitting(false);
     }

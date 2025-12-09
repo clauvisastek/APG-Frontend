@@ -8,10 +8,7 @@ import type {
   ImportResult,
 } from '../types/calculette';
 
-// TODO: Remplacer par de vrais appels API une fois le backend implémenté
-// const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api';
-
-// Mock data pour le développement initial
+// Mock data - À remplacer par de vrais appels API
 let mockConfig: CalculetteConfig = {
   globalCosts: {
     chargesPatronales: 65,

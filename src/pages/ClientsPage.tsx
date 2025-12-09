@@ -176,7 +176,6 @@ export const ClientsPage = () => {
       }
       handleCloseModal();
     } catch (error) {
-      console.error('Error saving client:', error);
       toast.error(modalMode === 'create' ? 'Erreur lors de la création du client' : 'Erreur lors de la mise à jour du client');
     }
   };
@@ -189,7 +188,6 @@ export const ClientsPage = () => {
         await deleteClientMutation.mutateAsync(client.id);
         toast.success(`Client "${client.name}" supprimé avec succès`);
       } catch (error) {
-        console.error('Error deleting client:', error);
         toast.error('Erreur lors de la suppression du client');
       }
     }
@@ -346,19 +344,6 @@ export const ClientsPage = () => {
       accessor: (client) => {
         // Use backend computed property to check if all 5 financial fields are complete
         const hasMissingFinancials = !client.isFinancialConfigComplete;
-        
-        // Debug log to see what we're getting
-        if (client.id === 6) {
-          console.log('Client 6 data:', {
-            defaultTargetMarginPercent: client.defaultTargetMarginPercent,
-            defaultMinimumMarginPercent: client.defaultMinimumMarginPercent,
-            discountPercent: client.discountPercent,
-            forcedVacationDaysPerYear: client.forcedVacationDaysPerYear,
-            targetHourlyRate: client.targetHourlyRate,
-            isFinancialConfigComplete: client.isFinancialConfigComplete,
-            hasMissingFinancials
-          });
-        }
         
         // Show badge if any financial parameters are missing
         if (hasMissingFinancials) {

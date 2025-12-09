@@ -21,10 +21,6 @@ export const CalculettePage = () => {
   // Match backend authorization: "Admin" or "CFO" (case-sensitive)
   const canManageCfoSettings = userRoles.includes('Admin') || userRoles.includes('CFO') || 
                                 userRoles.includes('admin') || userRoles.includes('cfo');
-  
-  // Debug : Afficher les rôles dans la console
-  console.log('🔍 Rôles utilisateur:', userRoles);
-  console.log('🔐 Mode CFO actif:', canManageCfoSettings);
 
   // State
   const [results, setResults] = useState<MarginSimulationResponse | null>(null);
@@ -62,7 +58,6 @@ export const CalculettePage = () => {
       setClients(clientsData);
       setScenarios(scenariosData);
     } catch (error) {
-      console.error('Erreur lors du chargement des données:', error);
       toast.error('Erreur lors du chargement des données');
     } finally {
       setIsLoadingClients(false);
@@ -106,8 +101,6 @@ export const CalculettePage = () => {
       
       toast.success('Calcul effectué avec succès');
     } catch (error: any) {
-      console.error('Erreur lors du calcul:', error);
-      
       // Display error message from backend
       const errorMessage = error?.message || 'Erreur lors du calcul de la marge';
       toast.error(errorMessage, { autoClose: 8000 });
@@ -144,8 +137,7 @@ export const CalculettePage = () => {
       setScenarios(prev => prev.filter(s => s.id !== scenarioId));
       toast.success('Scénario supprimé');
     } catch (error) {
-      console.error('Erreur lors de la suppression du scénario:', error);
-      toast.error('Erreur lors de la suppression');
+      toast.error('Erreur lors de la suppression du scénario');
     }
     */
   };
@@ -208,8 +200,6 @@ export const CalculettePage = () => {
       
       toast.success('Analyse des tendances marché terminée');
     } catch (error: any) {
-      console.error('Erreur lors de l\'analyse des tendances marché:', error);
-      
       const errorMessage = error?.message || 'Impossible de récupérer les tendances marché pour le moment';
       setMarketTrendsError(errorMessage);
       toast.error('Erreur lors de l\'analyse des tendances marché', { autoClose: 5000 });

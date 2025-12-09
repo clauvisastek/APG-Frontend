@@ -35,7 +35,7 @@ export const ResourceDetailsModal = ({
       setMissionHistory(history);
       setKPIs(kpisData);
     } catch (error) {
-      console.error('Erreur lors du chargement des données:', error);
+      // Error handled silently
     } finally {
       setIsLoading(false);
     }

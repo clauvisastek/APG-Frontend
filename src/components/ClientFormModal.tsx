@@ -92,16 +92,6 @@ export const ClientFormModal = ({
   // Users can select from available Business Units (filtered by API based on their roles)
   const hasBusinessUnits = (businessUnits?.length ?? 0) > 0;
 
-  // Debug: Log business units data and user roles
-  useEffect(() => {
-    console.log('🏢 ClientFormModal - user:', user);
-    console.log('🏢 ClientFormModal - user roles:', user?.['https://apg-astek.com/roles']);
-    console.log('🏢 ClientFormModal - businessUnits:', businessUnits);
-    console.log('🏢 ClientFormModal - isLoadingBUs:', isLoadingBUs);
-    console.log('🏢 ClientFormModal - hasBusinessUnits:', hasBusinessUnits);
-    console.log('🏢 ClientFormModal - canEditFinancialFields:', canEditFinancialFields);
-  }, [businessUnits, isLoadingBUs, hasBusinessUnits, canEditFinancialFields, user]);
-
   // Reset form when modal opens or client changes
   useEffect(() => {
     if (isOpen) {

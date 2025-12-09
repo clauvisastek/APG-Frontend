@@ -165,6 +165,14 @@ export const ClientInfoSection = ({ data, errors, onChange, buFilter }: ClientIn
       onChange('clientCode', selectedClient.code || '');
       onChange('clientCountry', selectedClient.countryName);
       onChange('clientSector', selectedClient.sectorName || '');
+      
+      // Pré-remplir les marges avec les valeurs par défaut du client
+      if (selectedClient.defaultTargetMarginPercent != null) {
+        onChange('margins.targetMarginPercent', selectedClient.defaultTargetMarginPercent);
+      }
+      if (selectedClient.defaultMinimumMarginPercent != null) {
+        onChange('margins.minMarginPercent', selectedClient.defaultMinimumMarginPercent);
+      }
     }
   };
   
@@ -292,15 +300,15 @@ interface MarginsSectionProps {
   data: ProjectWizardStep1Values;
   errors: SectionErrors;
   onChange: (field: string, value: any) => void;
+  readOnly?: boolean;
 }
 
-export const MarginsSection = ({ data, errors, onChange }: MarginsSectionProps) => {
+export const MarginsSection = ({ data, errors, onChange, readOnly = true }: MarginsSectionProps) => {
   return (
     <div className="wizard-section">
       <h3 className="wizard-section-title">Rentabilité du projet</h3>
       <p className="wizard-section-description">
-        Définissez les objectifs de marge pour ce projet. Ces marges serviront de référence pour 
-        la validation et le suivi de la rentabilité.
+        Les marges par défaut sont héritées automatiquement du client sélectionné.
       </p>
 
       <div className="astek-row">
@@ -318,10 +326,13 @@ export const MarginsSection = ({ data, errors, onChange }: MarginsSectionProps) 
               min="0"
               max="100"
               step="0.1"
+              readOnly={readOnly}
+              disabled={readOnly}
+              style={readOnly ? { backgroundColor: '#f3f4f6', cursor: 'not-allowed' } : {}}
             />
             {errors.targetMargin && <div className="astek-error-message">{errors.targetMargin}</div>}
             <small className="astek-field-hint">
-              Marge brute souhaitée pour le projet
+              Marge brute du client (héritée automatiquement)
             </small>
           </div>
         </div>
@@ -340,10 +351,13 @@ export const MarginsSection = ({ data, errors, onChange }: MarginsSectionProps) 
               min="0"
               max="100"
               step="0.1"
+              readOnly={readOnly}
+              disabled={readOnly}
+              style={readOnly ? { backgroundColor: '#f3f4f6', cursor: 'not-allowed' } : {}}
             />
             {errors.minMargin && <div className="astek-error-message">{errors.minMargin}</div>}
             <small className="astek-field-hint">
-              Seuil d'alerte en dessous duquel une validation sera requise
+              Marge minimale du client (héritée automatiquement)
             </small>
           </div>
         </div>
@@ -352,10 +366,9 @@ export const MarginsSection = ({ data, errors, onChange }: MarginsSectionProps) 
       <div className="wizard-info-box">
         <div className="wizard-info-icon">ℹ️</div>
         <div className="wizard-info-content">
-          <strong>À propos des marges :</strong><br />
-          La marge cible représente l'objectif de rentabilité standard pour ce projet. 
-          La marge minimale est le seuil en dessous duquel une validation spéciale sera nécessaire 
-          pour engager des ressources ou accepter des taux.
+          <strong>Marges héritées du client :</strong><br />
+          Les marges sont automatiquement définies selon la configuration du client sélectionné. 
+          Ces valeurs sont en lecture seule pour garantir la cohérence avec les accords commerciaux établis.
         </div>
       </div>
     </div>

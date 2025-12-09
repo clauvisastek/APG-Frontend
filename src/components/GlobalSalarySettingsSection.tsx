@@ -33,7 +33,6 @@ export const GlobalSalarySettingsSection: React.FC = () => {
       const data = await globalSalarySettingsApi.getAll();
       setSettings(data);
     } catch (err: any) {
-      console.error('Erreur lors du chargement des paramètres globaux:', err);
       setError(err.message || 'Erreur lors du chargement des paramètres');
     } finally {
       setIsLoading(false);
@@ -91,7 +90,6 @@ export const GlobalSalarySettingsSection: React.FC = () => {
       setIsAddModalOpen(false);
       await loadSettings();
     } catch (err: any) {
-      console.error('Erreur lors de la création:', err);
       toast.error(err.message || 'Erreur lors de la création des paramètres');
     } finally {
       setIsSubmitting(false);
@@ -105,7 +103,6 @@ export const GlobalSalarySettingsSection: React.FC = () => {
       toast.success('Configuration activée avec succès');
       await loadSettings();
     } catch (err: any) {
-      console.error('Erreur lors de l\'activation:', err);
       toast.error(err.message || 'Erreur lors de l\'activation');
     } finally {
       setActivatingId(null);
@@ -133,7 +130,6 @@ export const GlobalSalarySettingsSection: React.FC = () => {
       toast.success('Configuration supprimée avec succès');
       await loadSettings();
     } catch (err: any) {
-      console.error('Erreur lors de la suppression:', err);
       toast.error(err.message || 'Erreur lors de la suppression');
     } finally {
       setDeletingId(null);

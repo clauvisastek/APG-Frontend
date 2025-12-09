@@ -100,12 +100,8 @@ export const ImportDialog: React.FC<ImportDialogProps> = ({
         onClose();
       } else {
         toast.error(result.message || 'Erreur lors de l\'import');
-        if (result.errors && result.errors.length > 0) {
-          console.error('Erreurs d\'import:', result.errors);
-        }
       }
     } catch (error) {
-      console.error('Erreur lors de l\'import:', error);
       toast.error('Erreur lors de l\'import du fichier');
     } finally {
       setIsImporting(false);

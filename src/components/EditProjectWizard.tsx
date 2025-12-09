@@ -420,7 +420,6 @@ export const EditProjectWizard = ({
       onSuccess();
       onClose();
     } catch (error) {
-      console.error('Error submitting project edit:', error);
       alert('Une erreur est survenue lors de la soumission des modifications.');
     } finally {
       setIsSubmitting(false);
