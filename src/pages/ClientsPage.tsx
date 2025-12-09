@@ -117,13 +117,18 @@ export const ClientsPage = () => {
     if (!dto) return undefined;
     
     return {
-      id: dto.id.toString(),
+      id: dto.id,
       name: dto.name,
-      code: dto.code,
+      code: dto.code || '',
       sectorId: dto.sectorId,
       sectorName: dto.sectorName,
-      country: dto.countryName as Country, // TODO: Map properly with country codes
-      defaultCurrency: dto.currencyCode as Currency,
+      businessUnitId: dto.businessUnitId,
+      businessUnitCode: dto.businessUnitCode,
+      businessUnitName: dto.businessUnitName || dto.businessUnitCode,
+      countryId: dto.countryId,
+      countryName: dto.countryName,
+      currencyId: dto.currencyId,
+      currencyCode: dto.currencyCode,
       // Financial fields - may be undefined or null
       defaultTargetMarginPercent: dto.defaultTargetMarginPercent ?? undefined,
       defaultMinimumMarginPercent: dto.defaultMinimumMarginPercent ?? undefined,
@@ -131,15 +136,10 @@ export const ClientsPage = () => {
       forcedVacationDaysPerYear: dto.forcedVacationDaysPerYear ?? undefined,
       targetHourlyRate: dto.targetHourlyRate ?? undefined,
       isFinancialConfigComplete: dto.isFinancialConfigComplete ?? false,
-      financialConfigStatusMessage: dto.financialConfigStatusMessage,
+      financialConfigStatusMessage: dto.financialConfigStatusMessage || '',
       contactName: dto.contactName,
       contactEmail: dto.contactEmail,
-      businessUnit: {
-        id: dto.businessUnitId.toString(),
-        name: dto.businessUnitCode, // We don't have the name in DTO
-        code: dto.businessUnitCode,
-      },
-      businessUnitCode: dto.businessUnitCode,
+      isActive: dto.isActive ?? true,
       createdAt: new Date().toISOString(), // Not in DTO
       updatedAt: new Date().toISOString(), // Not in DTO
     };
@@ -151,7 +151,7 @@ export const ClientsPage = () => {
         code: clientData.code,
         name: clientData.name,
         sectorId: parseInt(clientData.sectorId),
-        businessUnitId: parseInt(clientData.businessUnitId),
+        businessUnitId: typeof clientData.businessUnitId === 'string' ? parseInt(clientData.businessUnitId) : clientData.businessUnitId,
         countryId: parseInt(clientData.country as string),
         currencyId: parseInt(clientData.defaultCurrency as string),
         // Financial fields - only include if defined

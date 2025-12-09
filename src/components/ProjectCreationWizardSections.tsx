@@ -155,16 +155,16 @@ interface ClientInfoSectionProps {
 }
 
 export const ClientInfoSection = ({ data, errors, onChange, buFilter }: ClientInfoSectionProps) => {
-  const { data: clients, isLoading } = useClients(buFilter.scope === 'bu' ? buFilter.buId : undefined);
+  const { data: clients, isLoading } = useClients(buFilter.scope === 'bu' ? Number(buFilter.buId) : undefined);
   
   // Handle client selection
-  const handleClientSelect = (clientId: string) => {
+  const handleClientSelect = (clientId: number) => {
     const selectedClient = clients?.find(c => c.id === clientId);
     if (selectedClient) {
       onChange('clientName', selectedClient.name);
       onChange('clientCode', selectedClient.code || '');
-      onChange('clientCountry', selectedClient.country);
-      onChange('clientSector', selectedClient.sector || '');
+      onChange('clientCountry', selectedClient.countryName);
+      onChange('clientSector', selectedClient.sectorName || '');
     }
   };
   
@@ -184,7 +184,7 @@ export const ClientInfoSection = ({ data, errors, onChange, buFilter }: ClientIn
           className={`astek-select ${errors.clientName ? 'is-invalid' : ''}`}
           value={data.clientName}
           onChange={(e) => {
-            const clientId = e.target.value;
+            const clientId = e.target.value ? parseInt(e.target.value) : null;
             if (clientId) {
               handleClientSelect(clientId);
             } else {
@@ -199,7 +199,7 @@ export const ClientInfoSection = ({ data, errors, onChange, buFilter }: ClientIn
           <option value="">Sélectionnez un client</option>
           {clients?.map(client => (
             <option key={client.id} value={client.id}>
-              {client.name} {client.code ? `(${client.code})` : ''} - BU: {client.businessUnit.code}
+              {client.name} {client.code ? `(${client.code})` : ''} - BU: {client.businessUnitCode}
             </option>
           ))}
         </select>
@@ -223,8 +223,8 @@ export const ClientInfoSection = ({ data, errors, onChange, buFilter }: ClientIn
               fontSize: '14px',
               fontWeight: 600
             }}>
-              {clients?.find(c => c.name === data.clientName)?.businessUnit.name} 
-              ({clients?.find(c => c.name === data.clientName)?.businessUnit.code})
+              {clients?.find(c => c.name === data.clientName)?.businessUnitName} 
+              ({clients?.find(c => c.name === data.clientName)?.businessUnitCode})
             </div>
             <div style={{ fontSize: '12px', color: '#6B7280', marginTop: '4px' }}>
               La Business Unit est automatiquement dérivée du client sélectionné

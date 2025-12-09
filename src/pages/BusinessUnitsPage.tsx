@@ -10,7 +10,20 @@ import { DataTable, type DataTableColumn } from '../components/DataTable/DataTab
 
 export const BusinessUnitsPage = () => {
   const { user } = useAuth0();
-  const { data: businessUnits, isLoading, error } = useBusinessUnits();
+  const { data: businessUnitsDto, isLoading, error } = useBusinessUnits();
+  
+  // Convert DTO to frontend type - remove extra fields like sectors
+  const businessUnits = useMemo(() => {
+    return businessUnitsDto?.map(bu => ({
+      id: String(bu.id),
+      name: bu.name,
+      code: bu.code,
+      managerName: bu.managerName,
+      isActive: bu.isActive,
+      createdAt: bu.createdAt,
+      updatedAt: bu.updatedAt || undefined,
+    } as BusinessUnit)) || [];
+  }, [businessUnitsDto]);
   
   // Modal state
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -18,7 +31,7 @@ export const BusinessUnitsPage = () => {
   const [selectedBusinessUnit, setSelectedBusinessUnit] = useState<BusinessUnit | null>(null);
   
   // Local business units state for optimistic updates
-  const [localBusinessUnits, setLocalBusinessUnits] = useState<BusinessUnit[]>(businessUnits || []);
+  const [localBusinessUnits, setLocalBusinessUnits] = useState<BusinessUnit[]>([]);
   
   // Mutations
   const createBusinessUnit = useCreateBusinessUnit();
@@ -28,10 +41,12 @@ export const BusinessUnitsPage = () => {
   // Determine if user can manage business units
   const canManageBusinessUnits = hasAnyRole(user, ['Admin', 'CFO']);
   
-  // Sync with API data
-  if (businessUnits && localBusinessUnits.length === 0) {
-    setLocalBusinessUnits(businessUnits);
-  }
+  // Sync localBusinessUnits with businessUnits
+  useMemo(() => {
+    if (businessUnits.length > 0 && localBusinessUnits.length === 0) {
+      setLocalBusinessUnits(businessUnits);
+    }
+  }, [businessUnits, localBusinessUnits.length]);
 
   // Filter business units based on user's BU roles
   const filteredBusinessUnits = useMemo(() => {
@@ -40,7 +55,7 @@ export const BusinessUnitsPage = () => {
     return buCodes.length === 0
       ? units // Admin or CFO: no restriction
       : units.filter(unit =>
-          buCodes.includes(unit.businessUnitCode)
+          buCodes.includes(unit.code)
         );
   }, [localBusinessUnits, businessUnits, user]);
 
@@ -66,12 +81,21 @@ export const BusinessUnitsPage = () => {
     try {
       if (modalMode === 'create') {
         // Create new business unit
-        const newBusinessUnit = await createBusinessUnit.mutateAsync({
+        const newBusinessUnitDto = await createBusinessUnit.mutateAsync({
           name: businessUnitData.name,
-          code: businessUnitData.code,
-          sector: businessUnitData.sector,
-          leader: businessUnitData.leader,
+          managerName: businessUnitData.managerName,
+          sectorIds: [], // TODO: Add sector selection in form
         });
+        
+        const newBusinessUnit: BusinessUnit = {
+          id: String(newBusinessUnitDto.id),
+          name: newBusinessUnitDto.name,
+          code: newBusinessUnitDto.code,
+          managerName: newBusinessUnitDto.managerName,
+          isActive: newBusinessUnitDto.isActive,
+          createdAt: newBusinessUnitDto.createdAt,
+          updatedAt: newBusinessUnitDto.updatedAt || undefined,
+        };
         
         setLocalBusinessUnits(prev => [...prev, newBusinessUnit]);
         toast.success(`Business Unit "${newBusinessUnit.name}" créée avec succès !`);
@@ -79,15 +103,24 @@ export const BusinessUnitsPage = () => {
         // Update existing business unit
         if (!businessUnitData.id) return;
         
-        const updatedBusinessUnit = await updateBusinessUnit.mutateAsync({
-          id: businessUnitData.id,
+        const updatedBusinessUnitDto = await updateBusinessUnit.mutateAsync({
+          id: businessUnitData.id.toString(),
           data: {
             name: businessUnitData.name,
-            code: businessUnitData.code,
-            sector: businessUnitData.sector,
-            leader: businessUnitData.leader,
+            managerName: businessUnitData.managerName,
+            sectorIds: [], // TODO: Add sector selection in form
           },
         });
+        
+        const updatedBusinessUnit: BusinessUnit = {
+          id: String(updatedBusinessUnitDto.id),
+          name: updatedBusinessUnitDto.name,
+          code: updatedBusinessUnitDto.code,
+          managerName: updatedBusinessUnitDto.managerName,
+          isActive: updatedBusinessUnitDto.isActive,
+          createdAt: updatedBusinessUnitDto.createdAt,
+          updatedAt: updatedBusinessUnitDto.updatedAt || undefined,
+        };
         
         setLocalBusinessUnits(prev =>
           prev.map(bu => bu.id === updatedBusinessUnit.id ? updatedBusinessUnit : bu)
@@ -146,16 +179,10 @@ export const BusinessUnitsPage = () => {
       ),
     },
     {
-      id: 'sector',
-      label: 'Secteur',
-      width: '25%',
-      accessor: (bu) => bu.sector,
-    },
-    {
-      id: 'leader',
+      id: 'managerName',
       label: 'Responsable',
       width: '25%',
-      accessor: (bu) => bu.leader,
+      accessor: (bu) => bu.managerName,
     },
     {
       id: 'actions',

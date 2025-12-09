@@ -2,19 +2,22 @@ import { Modal, Button, Form, Row, Col, Spinner, Alert } from 'react-bootstrap';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { clientSchema, type ClientFormData } from '../utils/validationSchemas';
-import { Country, Currency } from '../types';
-import { useCreateClient } from '../hooks/useApi';
+import { useCreateClient, useBusinessUnits, useSectors, useCountries, useCurrencies } from '../hooks/useApi';
 import { useState } from 'react';
 
 interface CreateClientModalProps {
   show: boolean;
   onHide: () => void;
-  onClientCreated?: (clientId: string) => void;
+  onClientCreated?: (clientId: number) => void;
 }
 
 export const CreateClientModal = ({ show, onHide, onClientCreated }: CreateClientModalProps) => {
   const [serverError, setServerError] = useState<string>('');
   const createClient = useCreateClient();
+  const { data: businessUnits } = useBusinessUnits();
+  const { data: sectors } = useSectors();
+  const { data: countries } = useCountries();
+  const { data: currencies } = useCurrencies();
 
   const {
     control,
@@ -26,22 +29,26 @@ export const CreateClientModal = ({ show, onHide, onClientCreated }: CreateClien
     defaultValues: {
       name: '',
       code: '',
-      sector: '',
-      country: Country.CANADA,
-      defaultCurrency: Currency.CAD,
-      defaultTargetMargin: 25,
-      defaultMinMargin: 15,
+      sectorId: 1,
+      businessUnitId: 1,
+      countryId: 1,
+      currencyId: 1,
+      defaultTargetMarginPercent: 25,
+      defaultMinimumMarginPercent: 15,
       contactName: '',
       contactEmail: '',
-      contactPhone: '',
-      notes: '',
     },
   });
 
   const onSubmit = async (data: ClientFormData) => {
     setServerError('');
     try {
-      const newClient = await createClient.mutateAsync(data);
+      // Ensure code is set even if empty
+      const clientData = {
+        ...data,
+        code: data.code || '',
+      };
+      const newClient = await createClient.mutateAsync(clientData);
       reset();
       onClientCreated?.(newClient.id);
       onHide();
@@ -116,21 +123,22 @@ export const CreateClientModal = ({ show, onHide, onClientCreated }: CreateClien
           <Row className="mb-3">
             <Col xs={12} md={6}>
               <Form.Group>
-                <Form.Label>Secteur d'activité</Form.Label>
+                <Form.Label>Secteur d'activité <span className="text-danger">*</span></Form.Label>
                 <Controller
-                  name="sector"
+                  name="sectorId"
                   control={control}
                   render={({ field }) => (
-                    <Form.Control
-                      {...field}
-                      type="text"
-                      isInvalid={!!errors.sector}
-                      placeholder="Ex: Technologie"
-                    />
+                    <Form.Select {...field} isInvalid={!!errors.sectorId} onChange={(e) => field.onChange(parseInt(e.target.value))}>
+                      {sectors?.map((sector) => (
+                        <option key={sector.id} value={sector.id}>
+                          {sector.name}
+                        </option>
+                      ))}
+                    </Form.Select>
                   )}
                 />
                 <Form.Control.Feedback type="invalid">
-                  {errors.sector?.message}
+                  {errors.sectorId?.message}
                 </Form.Control.Feedback>
               </Form.Group>
             </Col>
@@ -138,20 +146,20 @@ export const CreateClientModal = ({ show, onHide, onClientCreated }: CreateClien
               <Form.Group className="mt-3 mt-md-0">
                 <Form.Label>Pays <span className="text-danger">*</span></Form.Label>
                 <Controller
-                  name="country"
+                  name="countryId"
                   control={control}
                   render={({ field }) => (
-                    <Form.Select {...field} isInvalid={!!errors.country}>
-                      {Object.values(Country).map((country) => (
-                        <option key={country} value={country}>
-                          {country}
+                    <Form.Select {...field} isInvalid={!!errors.countryId} onChange={(e) => field.onChange(parseInt(e.target.value))}>
+                      {countries?.map((country) => (
+                        <option key={country.id} value={country.id}>
+                          {country.name}
                         </option>
                       ))}
                     </Form.Select>
                   )}
                 />
                 <Form.Control.Feedback type="invalid">
-                  {errors.country?.message}
+                  {errors.countryId?.message}
                 </Form.Control.Feedback>
               </Form.Group>
             </Col>
@@ -159,20 +167,20 @@ export const CreateClientModal = ({ show, onHide, onClientCreated }: CreateClien
               <Form.Group className="mt-3 mt-md-0">
                 <Form.Label>Devise <span className="text-danger">*</span></Form.Label>
                 <Controller
-                  name="defaultCurrency"
+                  name="currencyId"
                   control={control}
                   render={({ field }) => (
-                    <Form.Select {...field} isInvalid={!!errors.defaultCurrency}>
-                      {Object.values(Currency).map((currency) => (
-                        <option key={currency} value={currency}>
-                          {currency}
+                    <Form.Select {...field} isInvalid={!!errors.currencyId} onChange={(e) => field.onChange(parseInt(e.target.value))}>
+                      {currencies?.map((currency) => (
+                        <option key={currency.id} value={currency.id}>
+                          {currency.code} - {currency.name}
                         </option>
                       ))}
                     </Form.Select>
                   )}
                 />
                 <Form.Control.Feedback type="invalid">
-                  {errors.defaultCurrency?.message}
+                  {errors.currencyId?.message}
                 </Form.Control.Feedback>
               </Form.Group>
             </Col>
@@ -181,55 +189,79 @@ export const CreateClientModal = ({ show, onHide, onClientCreated }: CreateClien
           <Row className="mb-3">
             <Col xs={12} md={6}>
               <Form.Group>
-                <Form.Label>Marge cible (%) <span className="text-danger">*</span></Form.Label>
+                <Form.Label>Marge cible (%)</Form.Label>
                 <Controller
-                  name="defaultTargetMargin"
+                  name="defaultTargetMarginPercent"
                   control={control}
                   render={({ field: { onChange, ...field } }) => (
                     <Form.Control
                       {...field}
                       type="number"
                       step="0.1"
-                      onChange={(e) => onChange(parseFloat(e.target.value) || 0)}
-                      isInvalid={!!errors.defaultTargetMargin}
+                      onChange={(e) => onChange(e.target.value ? parseFloat(e.target.value) : undefined)}
+                      isInvalid={!!errors.defaultTargetMarginPercent}
                     />
                   )}
                 />
                 <Form.Control.Feedback type="invalid">
-                  {errors.defaultTargetMargin?.message}
+                  {errors.defaultTargetMarginPercent?.message}
                 </Form.Control.Feedback>
               </Form.Group>
             </Col>
             <Col xs={12} md={6}>
               <Form.Group className="mt-3 mt-md-0">
-                <Form.Label>Marge minimale (%) <span className="text-danger">*</span></Form.Label>
+                <Form.Label>Marge minimale (%)</Form.Label>
                 <Controller
-                  name="defaultMinMargin"
+                  name="defaultMinimumMarginPercent"
                   control={control}
                   render={({ field: { onChange, ...field } }) => (
                     <Form.Control
                       {...field}
                       type="number"
                       step="0.1"
-                      onChange={(e) => onChange(parseFloat(e.target.value) || 0)}
-                      isInvalid={!!errors.defaultMinMargin}
+                      onChange={(e) => onChange(e.target.value ? parseFloat(e.target.value) : undefined)}
+                      isInvalid={!!errors.defaultMinimumMarginPercent}
                     />
                   )}
                 />
                 <Form.Control.Feedback type="invalid">
-                  {errors.defaultMinMargin?.message}
+                  {errors.defaultMinimumMarginPercent?.message}
+                </Form.Control.Feedback>
+              </Form.Group>
+            </Col>
+          </Row>
+
+          <Row className="mb-3">
+            <Col xs={12}>
+              <Form.Group>
+                <Form.Label>Business Unit <span className="text-danger">*</span></Form.Label>
+                <Controller
+                  name="businessUnitId"
+                  control={control}
+                  render={({ field }) => (
+                    <Form.Select {...field} isInvalid={!!errors.businessUnitId} onChange={(e) => field.onChange(parseInt(e.target.value))}>
+                      {businessUnits?.map((bu) => (
+                        <option key={bu.id} value={bu.id}>
+                          {bu.name} ({bu.code})
+                        </option>
+                      ))}
+                    </Form.Select>
+                  )}
+                />
+                <Form.Control.Feedback type="invalid">
+                  {errors.businessUnitId?.message}
                 </Form.Control.Feedback>
               </Form.Group>
             </Col>
           </Row>
 
           <hr />
-          <h6 className="mb-3">Contact principal (optionnel)</h6>
+          <h6 className="mb-3">Contact principal <span className="text-danger">*</span></h6>
 
           <Row className="mb-3">
-            <Col xs={12} md={4}>
+            <Col xs={12} md={6}>
               <Form.Group>
-                <Form.Label>Nom</Form.Label>
+                <Form.Label>Nom <span className="text-danger">*</span></Form.Label>
                 <Controller
                   name="contactName"
                   control={control}
@@ -247,9 +279,9 @@ export const CreateClientModal = ({ show, onHide, onClientCreated }: CreateClien
                 </Form.Control.Feedback>
               </Form.Group>
             </Col>
-            <Col xs={12} md={4}>
+            <Col xs={12} md={6}>
               <Form.Group className="mt-3 mt-md-0">
-                <Form.Label>Email</Form.Label>
+                <Form.Label>Email <span className="text-danger">*</span></Form.Label>
                 <Controller
                   name="contactEmail"
                   control={control}
@@ -267,47 +299,7 @@ export const CreateClientModal = ({ show, onHide, onClientCreated }: CreateClien
                 </Form.Control.Feedback>
               </Form.Group>
             </Col>
-            <Col xs={12} md={4}>
-              <Form.Group className="mt-3 mt-md-0">
-                <Form.Label>Téléphone</Form.Label>
-                <Controller
-                  name="contactPhone"
-                  control={control}
-                  render={({ field }) => (
-                    <Form.Control
-                      {...field}
-                      type="tel"
-                      isInvalid={!!errors.contactPhone}
-                      placeholder="+1 514 555-0100"
-                    />
-                  )}
-                />
-                <Form.Control.Feedback type="invalid">
-                  {errors.contactPhone?.message}
-                </Form.Control.Feedback>
-              </Form.Group>
-            </Col>
           </Row>
-
-          <Form.Group className="mb-3">
-            <Form.Label>Notes / Conditions particulières</Form.Label>
-            <Controller
-              name="notes"
-              control={control}
-              render={({ field }) => (
-                <Form.Control
-                  {...field}
-                  as="textarea"
-                  rows={3}
-                  isInvalid={!!errors.notes}
-                  placeholder="Informations supplémentaires..."
-                />
-              )}
-            />
-            <Form.Control.Feedback type="invalid">
-              {errors.notes?.message}
-            </Form.Control.Feedback>
-          </Form.Group>
         </Modal.Body>
 
         <Modal.Footer className="d-flex flex-column flex-sm-row gap-2">

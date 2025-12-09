@@ -1,8 +1,7 @@
 import type { ImportResult } from '../types/import';
 
 // TODO: Utiliser pour les vrais appels API
-// @ts-expect-error - API_BASE_URL sera utilisé lors de l'implémentation backend réelle
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000';
+// const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000';
 
 // Simulated delay for API calls
 const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));

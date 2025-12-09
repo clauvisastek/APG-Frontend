@@ -21,7 +21,7 @@ export interface ClientFormValues {
   targetHourlyRate?: number;
   contactName: string;
   contactEmail: string;
-  businessUnitId: string;
+  businessUnitId: number;
 }
 
 interface ClientFormModalProps {
@@ -61,7 +61,7 @@ const initialFormState: ClientFormValues = {
   targetHourlyRate: undefined,
   contactName: '',
   contactEmail: '',
-  businessUnitId: '',
+  businessUnitId: 0,
 };
 
 export const ClientFormModal = ({
@@ -106,18 +106,13 @@ export const ClientFormModal = ({
   useEffect(() => {
     if (isOpen) {
       if (mode === 'edit' && initialClient) {
-        // Find country and currency IDs from names/codes
-        // initialClient.country and initialClient.defaultCurrency are strings (from Country and Currency types)
-        const countryId = countries?.find(c => c.name === initialClient.country)?.id.toString() || '';
-        const currencyId = currencies?.find(c => c.code === initialClient.defaultCurrency)?.id.toString() || '';
-        
         setFormData({
-          id: initialClient.id,
+          id: initialClient.id.toString(),
           name: initialClient.name,
           code: initialClient.code || '',
           sectorId: initialClient.sectorId.toString(),
-          country: countryId,
-          defaultCurrency: currencyId,
+          country: initialClient.countryId.toString(),
+          defaultCurrency: initialClient.currencyId.toString(),
           defaultTargetMarginPercent: initialClient.defaultTargetMarginPercent,
           defaultMinimumMarginPercent: initialClient.defaultMinimumMarginPercent,
           discountPercent: initialClient.discountPercent,
@@ -125,11 +120,11 @@ export const ClientFormModal = ({
           targetHourlyRate: initialClient.targetHourlyRate,
           contactName: initialClient.contactName || '',
           contactEmail: initialClient.contactEmail || '',
-          businessUnitId: initialClient.businessUnit.id,
+          businessUnitId: initialClient.businessUnitId,
         });
       } else {
         // For BU Leaders, pre-select their BU
-        const initialBuId = buFilter.scope === 'bu' ? buFilter.buId || '' : '';
+        const initialBuId = buFilter.scope === 'bu' && buFilter.buId ? Number(buFilter.buId) : 0;
         // Set default country and currency to first available
         const defaultCountryId = countries?.[0]?.id.toString() || '';
         const defaultCurrencyId = currencies?.[0]?.id.toString() || '';

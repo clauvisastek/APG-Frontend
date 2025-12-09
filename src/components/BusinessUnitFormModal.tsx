@@ -6,8 +6,8 @@ export interface BusinessUnitFormValues {
   id?: string;
   name: string;
   code: string;
-  sector: string;
-  leader: string;
+  managerName: string;
+  isActive?: boolean;
 }
 
 interface BusinessUnitFormModalProps {
@@ -21,15 +21,14 @@ interface BusinessUnitFormModalProps {
 interface FormErrors {
   name?: string;
   code?: string;
-  sector?: string;
-  leader?: string;
+  managerName?: string;
 }
 
 const initialFormState: BusinessUnitFormValues = {
   name: '',
   code: '',
-  sector: '',
-  leader: '',
+  managerName: '',
+  isActive: true,
 };
 
 export const BusinessUnitFormModal = ({
@@ -50,8 +49,8 @@ export const BusinessUnitFormModal = ({
           id: initialBusinessUnit.id,
           name: initialBusinessUnit.name,
           code: initialBusinessUnit.code,
-          sector: initialBusinessUnit.sector,
-          leader: initialBusinessUnit.leader,
+          managerName: initialBusinessUnit.managerName,
+          isActive: initialBusinessUnit.isActive,
         });
       } else {
         setFormData(initialFormState);
@@ -74,12 +73,8 @@ export const BusinessUnitFormModal = ({
       newErrors.code = 'Le code doit contenir uniquement des lettres majuscules, chiffres et tirets';
     }
 
-    if (!formData.sector.trim()) {
-      newErrors.sector = 'Le secteur est obligatoire';
-    }
-
-    if (!formData.leader.trim()) {
-      newErrors.leader = 'Le responsable est obligatoire';
+    if (!formData.managerName.trim()) {
+      newErrors.managerName = 'Le responsable est obligatoire';
     }
 
     setErrors(newErrors);
@@ -174,41 +169,22 @@ export const BusinessUnitFormModal = ({
                 </div>
               </div>
 
-              {/* Sector */}
-              <div className="astek-col-2">
-                <div className="astek-form-group">
-                  <label htmlFor="sector" className="astek-label">
-                    Secteur <span className="required-star">*</span>
-                  </label>
-                  <input
-                    type="text"
-                    id="sector"
-                    className={`astek-input ${errors.sector ? 'is-invalid' : ''}`}
-                    value={formData.sector}
-                    onChange={(e) => handleChange('sector', e.target.value)}
-                    disabled={isSubmitting}
-                    placeholder="Ex: Banking, Energy, Telecom"
-                  />
-                  {errors.sector && <div className="astek-error-message">{errors.sector}</div>}
-                </div>
-              </div>
-
-              {/* Leader */}
+              {/* Manager Name */}
               <div className="astek-col-1">
                 <div className="astek-form-group">
-                  <label htmlFor="leader" className="astek-label">
+                  <label htmlFor="managerName" className="astek-label">
                     Responsable <span className="required-star">*</span>
                   </label>
                   <input
                     type="text"
-                    id="leader"
-                    className={`astek-input ${errors.leader ? 'is-invalid' : ''}`}
-                    value={formData.leader}
-                    onChange={(e) => handleChange('leader', e.target.value)}
+                    id="managerName"
+                    className={`astek-input ${errors.managerName ? 'is-invalid' : ''}`}
+                    value={formData.managerName}
+                    onChange={(e) => handleChange('managerName', e.target.value)}
                     disabled={isSubmitting}
                     placeholder="Ex: Jean Dupont"
                   />
-                  {errors.leader && <div className="astek-error-message">{errors.leader}</div>}
+                  {errors.managerName && <div className="astek-error-message">{errors.managerName}</div>}
                 </div>
               </div>
             </div>

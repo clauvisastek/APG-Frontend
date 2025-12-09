@@ -76,8 +76,8 @@ const projectToWizardData = (project: Project): ProjectWizardStep1Values => {
     projectManager: project.responsibleName || project.responsibleId || '',
     clientName: project.client?.name || '',
     clientCode: project.client?.code,
-    clientCountry: project.client?.country,
-    clientSector: project.client?.sector,
+    clientCountry: project.client?.countryName,
+    clientSector: project.client?.sectorName,
     margins,
     teamMembers,
   };

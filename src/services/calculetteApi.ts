@@ -9,8 +9,7 @@ import type {
 } from '../types/calculette';
 
 // TODO: Remplacer par de vrais appels API une fois le backend implémenté
-// @ts-expect-error - API_BASE_URL sera utilisé lors de l'implémentation backend réelle
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api';
+// const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api';
 
 // Mock data pour le développement initial
 let mockConfig: CalculetteConfig = {

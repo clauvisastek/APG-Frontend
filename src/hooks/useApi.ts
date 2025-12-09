@@ -7,7 +7,7 @@ import { sectorsApi } from '../services/sectorsApi';
 import type { CreateClientInput, CreateProjectInput, EditProjectProfitabilityPayload } from '../types';
 
 // Client hooks
-export const useClients = (buId?: string) => {
+export const useClients = (buId?: number) => {
   return useQuery({
     queryKey: ['clients', buId],
     queryFn: () => clientApi.getAll(buId),

@@ -5,7 +5,7 @@ import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { toast } from 'react-toastify';
 import { projectSchema, type ProjectFormData } from '../utils/validationSchemas';
-import { ProjectType, Currency, type Client } from '../types';
+import { ProjectType, Currency, type Client, type CreateProjectInput } from '../types';
 import { useCreateProject, useClientSearch } from '../hooks/useApi';
 import { CreateClientModal } from '../components/CreateClientModal';
 import './CreateProjectPage.css';
@@ -68,10 +68,10 @@ export const CreateProjectPage = () => {
 
   useEffect(() => {
     if (selectedClient) {
-      setValue('clientId', selectedClient.id);
-      setValue('currency', selectedClient.defaultCurrency);
-      setValue('targetMargin', selectedClient.defaultTargetMargin);
-      setValue('minMargin', selectedClient.defaultMinMargin);
+      setValue('clientId', selectedClient.id.toString());
+      setValue('currency', selectedClient.currencyCode as Currency);
+      setValue('targetMargin', selectedClient.defaultTargetMarginPercent || 25);
+      setValue('minMargin', selectedClient.defaultMinimumMarginPercent || 15);
     }
   }, [selectedClient, setValue]);
 
@@ -227,7 +227,20 @@ export const CreateProjectPage = () => {
     }
 
     try {
-      await createProject.mutateAsync(data);
+      // Find selected client to get businessUnitId
+      const client = clients?.find(c => c.id.toString() === data.clientId);
+      if (!client) {
+        toast.error('Client sélectionné introuvable');
+        return;
+      }
+
+      // Transform to CreateProjectInput
+      const createInput: CreateProjectInput = {
+        ...data,
+        businessUnitId: client.businessUnitId.toString(),
+      };
+
+      await createProject.mutateAsync(createInput);
       toast.success(`Projet "${data.name}" créé avec succès !`);
       navigate('/projects');
     } catch (error) {
@@ -236,7 +249,7 @@ export const CreateProjectPage = () => {
     }
   };
 
-  const handleClientCreated = (newClientId: string) => {
+  const handleClientCreated = (newClientId: number) => {
     const newClient = clients?.find((c) => c.id === newClientId);
     if (newClient) {
       setSelectedClient(newClient);
@@ -530,7 +543,7 @@ export const CreateProjectPage = () => {
                                         <strong>{client.name}</strong>
                                         {client.code && <span style={{ color: '#555' }}> ({client.code})</span>}
                                       </div>
-                                      <small>{client.country} • {client.defaultCurrency}</small>
+                                      <small>{client.countryName} • {client.currencyCode}</small>
                                     </div>
                                   ))}
                                 </div>

@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import { Card, Button, Form, Row, Col, Modal, InputGroup } from 'react-bootstrap';
 import type { GlobalCostsConfig, ClientMarginConfig } from '../types/calculette';
 
 interface CfoConfigSectionProps {

@@ -43,49 +43,48 @@ export interface BusinessUnitRef {
 
 // Client Types
 export interface Client {
-  id: string;
+  id: number;
   name: string;
-  code?: string;
+  code: string;
   sectorId: number;
-  sectorName?: string;
-  country: Country;
-  defaultCurrency: Currency;
+  sectorName: string;
+  businessUnitId: number;
+  businessUnitCode: string;
+  businessUnitName: string;
+  countryId: number;
+  countryName: string;
+  currencyId: number;
+  currencyCode: string;
   // Financial fields - optional, only visible to Admin/CFO
   defaultTargetMarginPercent?: number;
   defaultMinimumMarginPercent?: number;
   discountPercent?: number;
   forcedVacationDaysPerYear?: number;
-  targetHourlyRate?: number; // Vendant cible ($/h)
-  // Indicates if all financial parameters are configured
-  isFinancialConfigComplete?: boolean;
-  financialConfigStatusMessage?: string;
-  contactName?: string;
-  contactEmail?: string;
-  contactPhone?: string;
-  notes?: string;
-  businessUnit: BusinessUnitRef;
-  businessUnitCode: string; // Quick access to BU code for filtering
+  targetHourlyRate?: number;
+  isFinancialConfigComplete: boolean;
+  financialConfigStatusMessage: string;
+  contactName: string;
+  contactEmail: string;
+  isActive: boolean;
   createdAt: string;
-  updatedAt: string;
+  updatedAt?: string;
 }
 
 export interface CreateClientInput {
+  code: string;
   name: string;
-  code?: string;
   sectorId: number;
-  country: Country;
-  defaultCurrency: Currency;
+  businessUnitId: number;
+  countryId: number;
+  currencyId: number;
   // Financial fields - optional, only editable by Admin/CFO
   defaultTargetMarginPercent?: number;
   defaultMinimumMarginPercent?: number;
   discountPercent?: number;
   forcedVacationDaysPerYear?: number;
   targetHourlyRate?: number;
-  contactName?: string;
-  contactEmail?: string;
-  contactPhone?: string;
-  notes?: string;
-  businessUnitId: string;
+  contactName: string;
+  contactEmail: string;
 }
 
 // Project Types
@@ -168,18 +167,17 @@ export interface BusinessUnit {
   id: string;
   name: string;
   code: string;
-  businessUnitCode: string; // Same as code, for consistency
-  sector: string;
-  leader: string;
+  managerName: string;
+  isActive: boolean;
   createdAt: string;
-  updatedAt: string;
+  updatedAt?: string;
 }
 
 export interface CreateBusinessUnitInput {
   name: string;
   code: string;
-  sector: string;
-  leader: string;
+  managerName: string;
+  isActive?: boolean;
 }
 
 // API Response Types

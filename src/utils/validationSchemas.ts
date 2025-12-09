@@ -11,45 +11,36 @@ export const clientSchema = z.object({
     .regex(/^[a-zA-Z0-9_-]*$/, 'Le code ne peut contenir que des lettres, chiffres, - et _')
     .optional()
     .or(z.literal('')),
-  sector: z.string()
-    .max(100, 'Le secteur ne peut pas dépasser 100 caractères')
-    .optional()
-    .or(z.literal('')),
-  country: z.nativeEnum(Country, {
+  sectorId: z.number({
+    message: 'Veuillez sélectionner un secteur',
+  }),
+  businessUnitId: z.number({
+    message: 'Veuillez sélectionner une business unit',
+  }),
+  countryId: z.number({
     message: 'Veuillez sélectionner un pays',
   }),
-  defaultCurrency: z.nativeEnum(Currency, {
+  currencyId: z.number({
     message: 'Veuillez sélectionner une devise',
   }),
-  defaultTargetMargin: z.number({
+  defaultTargetMarginPercent: z.number({
     message: 'La marge cible doit être un nombre',
   })
     .min(0, 'La marge cible doit être supérieure ou égale à 0')
-    .max(100, 'La marge cible ne peut pas dépasser 100%'),
-  defaultMinMargin: z.number({
+    .max(100, 'La marge cible ne peut pas dépasser 100%')
+    .optional(),
+  defaultMinimumMarginPercent: z.number({
     message: 'La marge minimale doit être un nombre',
   })
     .min(0, 'La marge minimale doit être supérieure ou égale à 0')
-    .max(100, 'La marge minimale ne peut pas dépasser 100%'),
+    .max(100, 'La marge minimale ne peut pas dépasser 100%')
+    .optional(),
   contactName: z.string()
-    .max(100, 'Le nom du contact ne peut pas dépasser 100 caractères')
-    .optional()
-    .or(z.literal('')),
+    .min(1, 'Le nom du contact est obligatoire')
+    .max(100, 'Le nom du contact ne peut pas dépasser 100 caractères'),
   contactEmail: z.string()
     .email('Format d\'email invalide')
-    .optional()
-    .or(z.literal('')),
-  contactPhone: z.string()
-    .max(20, 'Le téléphone ne peut pas dépasser 20 caractères')
-    .optional()
-    .or(z.literal('')),
-  notes: z.string()
-    .max(1000, 'Les notes ne peuvent pas dépasser 1000 caractères')
-    .optional()
-    .or(z.literal('')),
-}).refine((data) => data.defaultMinMargin <= data.defaultTargetMargin, {
-  message: 'La marge minimale doit être inférieure ou égale à la marge cible',
-  path: ['defaultMinMargin'],
+    .min(1, 'L\'email du contact est obligatoire'),
 });
 
 // Project Validation Schema
