@@ -152,9 +152,10 @@ interface ClientInfoSectionProps {
   errors: SectionErrors;
   onChange: (field: string, value: any) => void;
   buFilter: BusinessUnitFilter;
+  onClientFinancialStatusChange?: (isComplete: boolean) => void;
 }
 
-export const ClientInfoSection = ({ data, errors, onChange, buFilter }: ClientInfoSectionProps) => {
+export const ClientInfoSection = ({ data, errors, onChange, buFilter, onClientFinancialStatusChange }: ClientInfoSectionProps) => {
   const { data: clients, isLoading } = useClients(buFilter.scope === 'bu' ? Number(buFilter.buId) : undefined);
   
   // Handle client selection
@@ -165,6 +166,11 @@ export const ClientInfoSection = ({ data, errors, onChange, buFilter }: ClientIn
       onChange('clientCode', selectedClient.code || '');
       onChange('clientCountry', selectedClient.countryName);
       onChange('clientSector', selectedClient.sectorName || '');
+      
+      // Notify parent about financial status
+      if (onClientFinancialStatusChange) {
+        onClientFinancialStatusChange(selectedClient.isFinancialConfigComplete || false);
+      }
       
       // Pré-remplir les marges avec les valeurs par défaut du client
       if (selectedClient.defaultTargetMarginPercent != null) {
@@ -218,6 +224,33 @@ export const ClientInfoSection = ({ data, errors, onChange, buFilter }: ClientIn
           </div>
         )}
       </div>
+
+      {/* Avertissement si données financières incomplètes - Affiché en haut */}
+      {data.clientName && !clients?.find(c => c.name === data.clientName)?.isFinancialConfigComplete && (
+        <div style={{
+          background: '#FEF3C7',
+          border: '1px solid #F59E0B',
+          borderRadius: '8px',
+          padding: '16px',
+          marginTop: '16px',
+          marginBottom: '16px',
+          display: 'flex',
+          gap: '12px'
+        }}>
+          <div style={{ fontSize: '20px' }}>⚠️</div>
+          <div style={{ flex: 1 }}>
+            <h4 style={{ margin: '0 0 8px 0', color: '#92400E', fontSize: '14px', fontWeight: 600 }}>
+              Configuration financière incomplète
+            </h4>
+            <p style={{ margin: '0 0 12px 0', color: '#78350F', fontSize: '13px', lineHeight: '1.5' }}>
+              Ce client ne dispose pas de toutes les données financières requises (marges cibles, taux horaire cible, remises et jours de congés obligatoires).
+            </p>
+            <p style={{ margin: 0, color: '#78350F', fontSize: '13px', lineHeight: '1.5', fontWeight: 500 }}>
+              Veuillez compléter la configuration financière du client avant de créer un projet.
+            </p>
+          </div>
+        </div>
+      )}
 
       {data.clientName && (
         <>
@@ -301,9 +334,10 @@ interface MarginsSectionProps {
   errors: SectionErrors;
   onChange: (field: string, value: any) => void;
   readOnly?: boolean;
+  clientFinancialComplete?: boolean;
 }
 
-export const MarginsSection = ({ data, errors, onChange, readOnly = true }: MarginsSectionProps) => {
+export const MarginsSection = ({ data, errors, onChange, readOnly = true, clientFinancialComplete = true }: MarginsSectionProps) => {
   return (
     <div className="wizard-section">
       <h3 className="wizard-section-title">Rentabilité du projet</h3>

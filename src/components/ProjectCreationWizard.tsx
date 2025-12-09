@@ -133,6 +133,7 @@ export const ProjectCreationWizard = ({
   const [projectData, setProjectData] = useState<ProjectWizardStep1Values>(initialProjectData);
   const [errors, setErrors] = useState<SectionErrors>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [selectedClientFinancialComplete, setSelectedClientFinancialComplete] = useState<boolean>(true);
 
   // ============================================================================
   // VALIDATION
@@ -459,6 +460,7 @@ export const ProjectCreationWizard = ({
                     errors={errors}
                     onChange={handleChange}
                     buFilter={buFilter}
+                    onClientFinancialStatusChange={setSelectedClientFinancialComplete}
                   />
                 )}
 
@@ -468,6 +470,7 @@ export const ProjectCreationWizard = ({
                     errors={errors}
                     onChange={handleChange}
                     readOnly={true}
+                    clientFinancialComplete={selectedClientFinancialComplete}
                   />
                 )}
 
@@ -518,6 +521,7 @@ export const ProjectCreationWizard = ({
                 type="button"
                 className="astek-btn astek-btn-primary"
                 onClick={handleNextSection}
+                disabled={currentSection === 'client' && !selectedClientFinancialComplete}
               >
                 {currentSection === 'team' ? 'Passer à l\'étape 2' : 'Suivant'}
               </button>
