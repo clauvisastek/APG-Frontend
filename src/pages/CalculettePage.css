@@ -1,0 +1,872 @@
+/* CalculettePage.css - Aligned with APG Design System */
+
+/* Form Grid Layout */
+.calculette-form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.calculette-form-section {
+  padding: 24px;
+}
+
+.calculette-section-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: #1e293b;
+  margin: 0 0 8px 0;
+}
+
+.calculette-section-subtitle {
+  font-size: 14px;
+  color: #64748b;
+  margin: 0 0 24px 0;
+}
+
+.calculette-form-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-start;
+  margin-top: 24px;
+}
+
+/* Results Section */
+.calculette-results-section {
+  padding: 24px;
+}
+
+.calculette-results-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 24px;
+}
+
+/* KPI Cards */
+.calculette-kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+  margin-bottom: 32px;
+}
+
+.calculette-kpi-card {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 20px;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.calculette-kpi-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.calculette-kpi-label {
+  font-size: 13px;
+  font-weight: 500;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 8px;
+}
+
+.calculette-kpi-value {
+  font-size: 28px;
+  font-weight: 700;
+  color: #1e293b;
+  margin-bottom: 4px;
+}
+
+.calculette-kpi-value-info {
+  color: #3b82f6;
+}
+
+.calculette-kpi-value-secondary {
+  color: #8b5cf6;
+}
+
+.calculette-kpi-value-success {
+  color: #22c55e;
+}
+
+.calculette-kpi-desc {
+  font-size: 12px;
+  color: #94a3b8;
+}
+
+/* Margin Analysis */
+.calculette-margin-analysis {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 24px;
+  margin-bottom: 24px;
+}
+
+.calculette-margin-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.calculette-margin-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #1e293b;
+  margin: 0;
+}
+
+.calculette-margin-badge {
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.calculette-margin-badge-good {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.calculette-margin-badge-warning {
+  background: #fef9c3;
+  color: #854d0e;
+}
+
+.calculette-margin-badge-danger {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+/* Progress Bar */
+.calculette-progress-container {
+  margin-bottom: 20px;
+}
+
+.calculette-progress-bar {
+  width: 100%;
+  height: 24px;
+  background: #e2e8f0;
+  border-radius: 12px;
+  overflow: hidden;
+  margin-bottom: 8px;
+}
+
+.calculette-progress-fill {
+  height: 100%;
+  transition: width 0.6s ease;
+  border-radius: 12px 0 0 12px;
+}
+
+.calculette-progress-fill-good {
+  background: linear-gradient(90deg, #22c55e, #16a34a);
+}
+
+.calculette-progress-fill-warning {
+  background: linear-gradient(90deg, #eab308, #ca8a04);
+}
+
+.calculette-progress-fill-danger {
+  background: linear-gradient(90deg, #ef4444, #dc2626);
+}
+
+.calculette-progress-labels {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  color: #64748b;
+}
+
+.calculette-progress-target {
+  font-weight: 600;
+  color: #1e293b;
+}
+
+/* Messages */
+.calculette-message {
+  padding: 16px;
+  border-radius: 8px;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.calculette-message-good {
+  background: #dcfce7;
+  color: #166534;
+  border-left: 4px solid #22c55e;
+}
+
+.calculette-message-warning {
+  background: #fef9c3;
+  color: #854d0e;
+  border-left: 4px solid #eab308;
+}
+
+.calculette-message-danger {
+  background: #fee2e2;
+  color: #991b1b;
+  border-left: 4px solid #ef4444;
+}
+
+/* Details Grid */
+.calculette-details-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 16px;
+  padding: 20px;
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+}
+
+.calculette-detail-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.calculette-detail-label {
+  font-size: 13px;
+  color: #64748b;
+}
+
+.calculette-detail-value {
+  font-size: 14px;
+  font-weight: 600;
+  color: #1e293b;
+}
+
+.calculette-detail-value-positive {
+  color: #22c55e;
+}
+
+.calculette-detail-value-negative {
+  color: #ef4444;
+}
+
+/* CFO Section */
+.calculette-cfo-section {
+  padding: 24px;
+}
+
+.calculette-cfo-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 24px;
+}
+
+.calculette-cfo-divider {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin: 48px 0 32px 0;
+}
+
+.calculette-cfo-divider-line {
+  flex: 1;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, #e2e8f0, transparent);
+}
+
+.calculette-cfo-divider-badge {
+  padding: 12px 24px;
+  background: #fef9c3;
+  border: 2px solid #eab308;
+  border-radius: 20px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #854d0e;
+}
+
+.calculette-cfo-alert {
+  padding: 20px 24px;
+  background: #fffbeb;
+  border: 1px solid #fde047;
+  border-left: 4px solid #eab308;
+  border-radius: 8px;
+  margin-bottom: 24px;
+}
+
+.calculette-cfo-alert strong {
+  display: block;
+  margin-bottom: 8px;
+  color: #854d0e;
+  font-size: 16px;
+}
+
+.calculette-cfo-alert p {
+  margin: 0;
+  color: #a16207;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.calculette-tooltip {
+  display: inline-block;
+  margin-left: 6px;
+  cursor: help;
+  color: #94a3b8;
+  font-size: 14px;
+}
+
+.calculette-badge {
+  display: inline-block;
+  padding: 6px 12px;
+  border-radius: 12px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.calculette-badge-primary {
+  background: #dbeafe;
+  color: #1e40af;
+}
+
+/* Upload Zone */
+.calculette-upload-zone {
+  border: 2px dashed #cbd5e1;
+  border-radius: 12px;
+  padding: 48px 24px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s;
+  background: #f8fafc;
+}
+
+.calculette-upload-zone:hover {
+  border-color: #3b82f6;
+  background: #eff6ff;
+}
+
+.calculette-upload-zone-dragging {
+  border-color: #3b82f6;
+  background: #dbeafe;
+}
+
+.calculette-upload-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+.calculette-upload-icon {
+  font-size: 48px;
+}
+
+.calculette-upload-text {
+  font-size: 16px;
+  font-weight: 500;
+  color: #1e293b;
+  margin: 0;
+}
+
+.calculette-upload-formats {
+  font-size: 13px;
+  color: #64748b;
+  margin: 0;
+}
+
+.calculette-file-selected {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 16px;
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+}
+
+.calculette-file-icon {
+  font-size: 32px;
+}
+
+.calculette-file-info {
+  flex: 1;
+  text-align: left;
+}
+
+.calculette-file-name {
+  font-weight: 600;
+  color: #1e293b;
+  margin-bottom: 4px;
+}
+
+.calculette-file-size {
+  font-size: 13px;
+  color: #64748b;
+}
+
+.calculette-file-remove {
+  width: 32px;
+  height: 32px;
+  border: none;
+  background: #fee2e2;
+  color: #991b1b;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 18px;
+  transition: all 0.2s;
+}
+
+.calculette-file-remove:hover:not(:disabled) {
+  background: #fecaca;
+}
+
+.calculette-file-remove:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.calculette-import-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.calculette-import-info {
+  margin-top: 32px;
+  padding: 20px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+}
+
+.calculette-import-info h4 {
+  font-size: 15px;
+  font-weight: 600;
+  color: #1e293b;
+  margin: 0 0 12px 0;
+}
+
+.calculette-import-info p {
+  font-size: 14px;
+  color: #475569;
+  margin: 0 0 12px 0;
+}
+
+.calculette-import-info ul {
+  margin: 12px 0;
+  padding-left: 24px;
+}
+
+.calculette-import-info li {
+  font-size: 14px;
+  color: #475569;
+  margin-bottom: 8px;
+}
+
+.calculette-import-note {
+  margin-top: 16px;
+  padding: 12px;
+  background: #eff6ff;
+  border-left: 3px solid #3b82f6;
+  border-radius: 4px;
+  font-size: 13px;
+  color: #1e40af;
+}
+
+/* CFO Modal */
+.calculette-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1050;
+}
+
+.calculette-modal-content {
+  background: white;
+  border-radius: 12px;
+  width: 90%;
+  max-width: 800px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
+}
+
+.calculette-modal-header {
+  padding: 24px;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.calculette-modal-title {
+  font-size: 20px;
+  font-weight: 600;
+  color: #1e293b;
+  margin: 0;
+}
+
+.calculette-modal-body {
+  padding: 24px;
+}
+
+.calculette-modal-footer {
+  padding: 16px 24px;
+  border-top: 1px solid #e2e8f0;
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+/* CFO Tables */
+.calculette-cfo-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 24px;
+}
+
+.calculette-cfo-table thead th {
+  background: #f8fafc;
+  padding: 12px;
+  text-align: left;
+  font-size: 13px;
+  font-weight: 600;
+  color: #475569;
+  border-bottom: 2px solid #e2e8f0;
+}
+
+.calculette-cfo-table tbody td {
+  padding: 12px;
+  border-bottom: 1px solid #e2e8f0;
+  font-size: 14px;
+  color: #1e293b;
+}
+
+.calculette-cfo-table tbody tr:hover {
+  background: #f8fafc;
+}
+
+.calculette-edit-icon {
+  cursor: pointer;
+  color: #3b82f6;
+  font-size: 18px;
+  transition: color 0.2s;
+}
+
+.calculette-edit-icon:hover {
+  color: #2563eb;
+}
+
+/* Scenario History Section */
+.calculette-history-section {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* Badges for resource types and margins */
+.calculette-badge {
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 13px;
+  font-weight: 500;
+  display: inline-block;
+}
+
+.calculette-badge-primary {
+  background-color: #e0f2fe;
+  color: #0369a1;
+}
+
+.calculette-badge-info {
+  background-color: #e0e7ff;
+  color: #4338ca;
+}
+
+.calculette-badge-success {
+  background-color: #dcfce7;
+  color: #16a34a;
+}
+
+.calculette-badge-warning {
+  background-color: #fef3c7;
+  color: #d97706;
+}
+
+.calculette-badge-danger {
+  background-color: #fee2e2;
+  color: #dc2626;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .calculette-form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .calculette-kpi-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .calculette-results-header {
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .calculette-details-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .calculette-cfo-header {
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .calculette-cfo-divider-badge {
+    padding: 8px 16px;
+    font-size: 13px;
+  }
+}
+
+.page-header {
+  margin-bottom: 1.5rem;
+}
+
+.page-title {
+  font-size: 2rem;
+  font-weight: 600;
+  color: var(--bs-dark);
+  margin-bottom: 0.5rem;
+}
+
+.page-subtitle {
+  font-size: 1rem;
+  margin-bottom: 0;
+}
+
+/* Cartes de statistiques */
+.stat-card {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  border: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.stat-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.stat-label {
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.stat-value {
+  font-weight: 700;
+}
+
+/* Barre de progression personnalisée */
+.progress {
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.progress-bar {
+  transition: width 0.6s ease;
+}
+
+/* Badges */
+.badge {
+  font-weight: 600;
+  padding: 0.5em 0.75em;
+}
+
+/* Tables */
+.table {
+  font-size: 0.95rem;
+}
+
+.table thead th {
+  background-color: var(--bs-light);
+  font-weight: 600;
+  text-transform: uppercase;
+  font-size: 0.85rem;
+  letter-spacing: 0.5px;
+  border-bottom: 2px solid var(--bs-primary);
+}
+
+.table tbody tr {
+  transition: background-color 0.2s ease;
+}
+
+.table tbody tr:hover {
+  background-color: rgba(0, 0, 0, 0.02);
+}
+
+/* Boutons */
+.btn {
+  transition: all 0.2s ease;
+}
+
+.btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.btn:active {
+  transform: translateY(0);
+}
+
+/* Gap utility pour les anciens navigateurs */
+.d-flex.gap-2 > * + * {
+  margin-left: 0.5rem;
+}
+
+/* Cards avec bordure colorée */
+.card.border-warning {
+  border-width: 2px;
+}
+
+/* Alertes */
+.alert {
+  border-radius: 8px;
+  border-left-width: 4px;
+}
+
+.alert i {
+  vertical-align: middle;
+}
+
+/* Formulaire */
+.form-label {
+  font-weight: 500;
+  margin-bottom: 0.5rem;
+}
+
+.form-control:focus,
+.form-select:focus {
+  border-color: var(--bs-primary);
+  box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+}
+
+.form-control.is-invalid:focus,
+.form-select.is-invalid:focus {
+  border-color: var(--bs-danger);
+  box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25);
+}
+
+/* Tooltips sur icônes */
+.bi-info-circle {
+  cursor: help;
+  font-size: 0.9rem;
+}
+
+/* Spinners */
+.spinner-border-sm {
+  width: 1rem;
+  height: 1rem;
+  border-width: 0.2em;
+}
+
+/* Modal */
+.modal-header {
+  background-color: var(--bs-light);
+  border-bottom: 2px solid var(--bs-primary);
+}
+
+.modal-footer {
+  background-color: var(--bs-light);
+  border-top: 1px solid var(--bs-border-color);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .page-title {
+    font-size: 1.5rem;
+  }
+
+  .stat-card {
+    margin-bottom: 1rem;
+  }
+
+  .table {
+    font-size: 0.85rem;
+  }
+
+  .btn-group-sm .btn {
+    padding: 0.25rem 0.4rem;
+    font-size: 0.75rem;
+  }
+}
+
+/* Animation pour le chargement */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.card {
+  animation: fadeIn 0.3s ease;
+}
+
+/* États de chargement */
+.calculette-page .spinner-border {
+  width: 3rem;
+  height: 3rem;
+}
+
+/* Bootstrap icons dans les boutons */
+.btn i {
+  vertical-align: middle;
+}
+
+/* Table actions */
+.btn-group {
+  box-shadow: none;
+}
+
+.btn-group .btn {
+  border-radius: 0;
+}
+
+.btn-group .btn:first-child {
+  border-top-left-radius: 0.25rem;
+  border-bottom-left-radius: 0.25rem;
+}
+
+.btn-group .btn:last-child {
+  border-top-right-radius: 0.25rem;
+  border-bottom-right-radius: 0.25rem;
+}
+
+/* Amélioration visuelle des alertes de résultats */
+.alert.alert-success {
+  background-color: #d1e7dd;
+  border-color: #badbcc;
+  color: #0f5132;
+}
+
+.alert.alert-warning {
+  background-color: #fff3cd;
+  border-color: #ffecb5;
+  color: #664d03;
+}
+
+.alert.alert-danger {
+  background-color: #f8d7da;
+  border-color: #f5c2c7;
+  color: #842029;
+}
+
+/* Amélioration de la lisibilité des cartes CFO */
+.bg-warning.bg-opacity-10 {
+  background-color: rgba(255, 193, 7, 0.1) !important;
+}

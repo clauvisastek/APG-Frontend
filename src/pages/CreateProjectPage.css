@@ -1,0 +1,627 @@
+/* Astek Corporate Form Design - Create Project Page */
+
+/* Page Container */
+.apg-page {
+  background-color: #F7F9FC;
+  min-height: 100vh;
+  padding: 3rem 2rem;
+}
+
+@media (max-width: 768px) {
+  .apg-page {
+    padding: 2rem 1rem;
+  }
+}
+
+/* Form Card Container */
+.apg-form-card {
+  max-width: 1200px;
+  margin: 0 auto;
+  background-color: #FFFFFF;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  padding: 3rem;
+}
+
+@media (max-width: 768px) {
+  .apg-form-card {
+    padding: 2rem 1.5rem;
+  }
+}
+
+/* Page Title */
+.apg-form-title {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #222;
+  margin-bottom: 2.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 2px solid #E5E7EB;
+}
+
+@media (max-width: 768px) {
+  .apg-form-title {
+    font-size: 1.5rem;
+    margin-bottom: 2rem;
+  }
+}
+
+/* Section Titles */
+.apg-form-section-title {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #555;
+  margin-top: 2.5rem;
+  margin-bottom: 1.5rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid #E5E7EB;
+}
+
+.apg-form-section-title:first-of-type {
+  margin-top: 0;
+}
+
+/* Form Row (Label + Field) */
+.apg-form-row {
+  display: flex;
+  align-items: flex-start;
+  padding: 1.25rem 0;
+  border-bottom: 1px solid #EEEEEE;
+  min-height: 70px;
+}
+
+.apg-form-row:last-child {
+  border-bottom: none;
+}
+
+/* Label Column (Left 30%) */
+.apg-form-label {
+  width: 30%;
+  padding-right: 2rem;
+  display: flex;
+  align-items: center;
+  font-weight: 500;
+  color: #222;
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+
+.apg-form-label .text-danger {
+  margin-left: 0.25rem;
+}
+
+/* Field Column (Right 70%) */
+.apg-form-field {
+  width: 70%;
+  background-color: #F5F5F5;
+  padding: 14px 18px;
+  border-radius: 4px;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.apg-form-field.no-background {
+  background-color: transparent;
+  padding: 0;
+}
+
+/* Inputs inside the grey field block */
+.apg-form-field .form-control,
+.apg-form-field .form-select {
+  background-color: transparent;
+  border: none;
+  padding: 0.5rem 0;
+  box-shadow: none;
+  font-size: 0.95rem;
+  color: #222;
+}
+
+.apg-form-field .form-control:focus,
+.apg-form-field .form-select:focus {
+  background-color: transparent;
+  border: none;
+  box-shadow: none;
+  outline: none;
+  border-bottom: 2px solid #00A86B;
+}
+
+.apg-form-field .form-control::placeholder {
+  color: #999;
+  font-size: 0.9rem;
+}
+
+/* Textarea specific styling */
+.apg-form-field textarea.form-control {
+  min-height: 100px;
+  resize: vertical;
+  padding: 0.75rem 0;
+}
+
+/* Helper text */
+.apg-form-field .form-text {
+  font-size: 0.85rem;
+  color: #666;
+  margin-top: 0.25rem;
+  padding-left: 0;
+}
+
+/* Error feedback */
+.apg-form-field .invalid-feedback {
+  font-size: 0.85rem;
+  color: #dc3545;
+  margin-top: 0.25rem;
+}
+
+/* Client autocomplete dropdown */
+.apg-client-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: #FFFFFF;
+  border: 1px solid #E5E7EB;
+  border-radius: 4px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  max-height: 250px;
+  overflow-y: auto;
+  z-index: 1000;
+  margin-top: 0.25rem;
+}
+
+.apg-client-dropdown-item {
+  padding: 0.875rem 1rem;
+  border-bottom: 1px solid #F0F0F0;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+
+.apg-client-dropdown-item:last-child {
+  border-bottom: none;
+}
+
+.apg-client-dropdown-item:hover {
+  background-color: #F7F9FC;
+}
+
+.apg-client-dropdown-item strong {
+  color: #222;
+  font-weight: 600;
+}
+
+.apg-client-dropdown-item small {
+  color: #666;
+  font-size: 0.85rem;
+}
+
+/* Selected client alert */
+.apg-selected-client {
+  background-color: #E8F5E9;
+  border: 1px solid #00A86B;
+  border-radius: 4px;
+  padding: 0.75rem 1rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 0.5rem;
+}
+
+.apg-selected-client strong {
+  color: #00A86B;
+  font-weight: 600;
+}
+
+/* Multi-field row (for side-by-side fields) */
+.apg-form-field-group {
+  display: flex;
+  gap: 1rem;
+  width: 100%;
+}
+
+.apg-form-field-group > * {
+  flex: 1;
+}
+
+/* Client search with button */
+.apg-client-row {
+  display: flex;
+  gap: 1rem;
+  align-items: flex-start;
+}
+
+.apg-client-search {
+  flex: 1;
+  position: relative;
+}
+
+.apg-client-button {
+  flex-shrink: 0;
+  min-width: 160px;
+}
+
+/* Action Buttons Bar */
+.apg-form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  margin-top: 2.5rem;
+  padding-top: 2rem;
+  border-top: 1px solid #E5E7EB;
+}
+
+.apg-btn-cancel {
+  min-width: 140px;
+  padding: 0.625rem 1.5rem;
+  border: 1px solid #999;
+  background-color: transparent;
+  color: #555;
+  font-weight: 500;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+}
+
+.apg-btn-cancel:hover {
+  background-color: #F5F5F5;
+  border-color: #777;
+  color: #222;
+}
+
+.apg-btn-cancel:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.apg-btn-primary {
+  min-width: 180px;
+  padding: 0.625rem 2rem;
+  background-color: #00A86B;
+  border: 1px solid #00A86B;
+  color: #FFFFFF;
+  font-weight: 600;
+  border-radius: 999px;
+  transition: all 0.2s ease;
+}
+
+.apg-btn-primary:hover:not(:disabled) {
+  background-color: #008f5a;
+  border-color: #008f5a;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(0, 168, 107, 0.25);
+}
+
+.apg-btn-primary:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* New Client Button */
+.apg-btn-new-client {
+  padding: 0.625rem 1.25rem;
+  border: 1px solid #00A86B;
+  background-color: transparent;
+  color: #00A86B;
+  font-weight: 500;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.apg-btn-new-client:hover {
+  background-color: #00A86B;
+  color: #FFFFFF;
+}
+
+/* Alert banners */
+.apg-alert {
+  margin-bottom: 1.5rem;
+  padding: 1rem 1.25rem;
+  border-radius: 4px;
+  border: 1px solid;
+}
+
+.apg-alert-danger {
+  background-color: #FEE;
+  border-color: #FCC;
+  color: #C33;
+}
+
+.apg-alert-warning {
+  background-color: #FFF8E1;
+  border-color: #FFE082;
+  color: #F57C00;
+}
+
+/* Loading spinner positioning */
+.apg-spinner-right {
+  position: absolute;
+  top: 50%;
+  right: 12px;
+  transform: translateY(-50%);
+}
+
+/* Responsive: Stack label and field vertically on mobile */
+@media (max-width: 768px) {
+  .apg-form-row {
+    flex-direction: column;
+    align-items: stretch;
+    padding: 1rem 0;
+  }
+
+  .apg-form-label {
+    width: 100%;
+    padding-right: 0;
+    padding-bottom: 0.5rem;
+  }
+
+  .apg-form-field {
+    width: 100%;
+  }
+
+  .apg-form-field-group {
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .apg-client-row {
+    flex-direction: column;
+  }
+
+  .apg-client-button {
+    width: 100%;
+  }
+
+  .apg-form-actions {
+    flex-direction: column-reverse;
+    gap: 0.75rem;
+  }
+
+  .apg-btn-cancel,
+  .apg-btn-primary {
+    width: 100%;
+  }
+
+  .apg-client-dropdown {
+    left: 0;
+    right: 0;
+  }
+}
+
+/* Remove default Bootstrap form spacing that conflicts */
+.apg-form-card .mb-3,
+.apg-form-card .mb-4 {
+  margin-bottom: 0 !important;
+}
+
+/* Position relative for autocomplete */
+.apg-form-field-relative {
+  position: relative;
+}
+
+/* Accordion Wizard Styles */
+.apg-wizard-container {
+  margin-top: 2rem;
+}
+
+.apg-wizard-section {
+  margin-bottom: 1.5rem;
+  border: 1px solid #E5E7EB;
+  border-radius: 6px;
+  background: #FFFFFF;
+  overflow: hidden;
+}
+
+.apg-wizard-section.active {
+  border-color: #00A86B;
+  box-shadow: 0 0 0 1px #00A86B;
+}
+
+.apg-wizard-section.completed {
+  border-color: #E5E7EB;
+}
+
+.apg-wizard-header {
+  display: flex;
+  align-items: center;
+  padding: 1.25rem 1.5rem;
+  cursor: pointer;
+  background: #F9FAFB;
+  border-bottom: 1px solid #E5E7EB;
+  transition: background-color 0.2s ease;
+}
+
+.apg-wizard-header:hover {
+  background: #F3F4F6;
+}
+
+.apg-wizard-section.active .apg-wizard-header {
+  background: #F0FDF4;
+  border-bottom-color: #00A86B;
+}
+
+.apg-wizard-section.completed .apg-wizard-header {
+  background: #F9FAFB;
+}
+
+.apg-wizard-step-badge {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: #E5E7EB;
+  color: #555;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  font-size: 0.95rem;
+  margin-right: 1rem;
+  flex-shrink: 0;
+}
+
+.apg-wizard-section.active .apg-wizard-step-badge {
+  background: #00A86B;
+  color: #FFFFFF;
+}
+
+.apg-wizard-section.completed .apg-wizard-step-badge {
+  background: #00A86B;
+  color: #FFFFFF;
+}
+
+.apg-wizard-step-badge .check-icon::before {
+  content: "✓";
+  font-size: 1.1rem;
+}
+
+.apg-wizard-title {
+  flex: 1;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #222;
+  margin: 0;
+}
+
+.apg-wizard-section.active .apg-wizard-title {
+  color: #00A86B;
+}
+
+.apg-wizard-chevron {
+  width: 20px;
+  height: 20px;
+  color: #999;
+  transition: transform 0.2s ease;
+}
+
+.apg-wizard-section.active .apg-wizard-chevron {
+  transform: rotate(180deg);
+  color: #00A86B;
+}
+
+.apg-wizard-content {
+  padding: 0;
+  display: none;
+}
+
+.apg-wizard-section.active .apg-wizard-content {
+  display: block;
+}
+
+.apg-wizard-fields {
+  padding: 1.5rem;
+}
+
+.apg-wizard-navigation {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.25rem 1.5rem;
+  background: #F9FAFB;
+  border-top: 1px solid #E5E7EB;
+  gap: 1rem;
+}
+
+.apg-wizard-nav-left {
+  flex: 1;
+}
+
+.apg-wizard-nav-right {
+  display: flex;
+  gap: 1rem;
+}
+
+.apg-wizard-btn-prev,
+.apg-wizard-btn-next {
+  padding: 0.625rem 1.5rem;
+  font-weight: 500;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+  border: none;
+  cursor: pointer;
+  font-size: 0.95rem;
+}
+
+.apg-wizard-btn-prev {
+  background: transparent;
+  border: 1px solid #999;
+  color: #555;
+}
+
+.apg-wizard-btn-prev:hover:not(:disabled) {
+  background: #F5F5F5;
+  border-color: #777;
+  color: #222;
+}
+
+.apg-wizard-btn-next {
+  background: #00A86B;
+  color: #FFFFFF;
+  border: 1px solid #00A86B;
+  min-width: 120px;
+}
+
+.apg-wizard-btn-next:hover:not(:disabled) {
+  background: #008f5a;
+  border-color: #008f5a;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(0, 168, 107, 0.25);
+}
+
+.apg-wizard-btn-prev:disabled,
+.apg-wizard-btn-next:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.apg-wizard-section-errors {
+  padding: 1rem 1.5rem;
+  background: #FEF2F2;
+  border-top: 1px solid #FCA5A5;
+  color: #991B1B;
+}
+
+.apg-wizard-section-errors ul {
+  margin: 0;
+  padding-left: 1.5rem;
+}
+
+.apg-wizard-section-errors li {
+  margin-bottom: 0.25rem;
+}
+
+@media (max-width: 768px) {
+  .apg-wizard-header {
+    padding: 1rem;
+  }
+
+  .apg-wizard-step-badge {
+    width: 32px;
+    height: 32px;
+    font-size: 0.875rem;
+  }
+
+  .apg-wizard-title {
+    font-size: 1rem;
+  }
+
+  .apg-wizard-fields {
+    padding: 1rem;
+  }
+
+  .apg-wizard-navigation {
+    flex-direction: column;
+    padding: 1rem;
+  }
+
+  .apg-wizard-nav-left,
+  .apg-wizard-nav-right {
+    width: 100%;
+  }
+
+  .apg-wizard-nav-right {
+    flex-direction: column-reverse;
+  }
+
+  .apg-wizard-btn-prev,
+  .apg-wizard-btn-next {
+    width: 100%;
+  }
+}

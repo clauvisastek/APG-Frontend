@@ -1,0 +1,102 @@
+/* Custom responsive utilities */
+
+/* Mobile-first approach */
+body {
+  font-size: 14px;
+}
+
+/* Small devices (landscape phones, 576px and up) */
+@media (min-width: 576px) {
+  body {
+    font-size: 15px;
+  }
+}
+
+/* Medium devices (tablets, 768px and up) */
+@media (min-width: 768px) {
+  body {
+    font-size: 16px;
+  }
+}
+
+/* Ensure tables are scrollable on mobile */
+.table-responsive {
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Better spacing on mobile */
+@media (max-width: 575.98px) {
+  .card-body {
+    padding: 1rem;
+  }
+  
+  h1, .h1 {
+    font-size: 1.75rem;
+  }
+  
+  h2, .h2 {
+    font-size: 1.5rem;
+  }
+  
+  h3, .h3 {
+    font-size: 1.25rem;
+  }
+}
+
+/* Improve form spacing on mobile */
+@media (max-width: 767.98px) {
+  .form-label {
+    margin-bottom: 0.25rem;
+    font-size: 0.9rem;
+  }
+  
+  .form-control, .form-select {
+    font-size: 16px; /* Prevents zoom on iOS */
+  }
+}
+
+/* Modal improvements for mobile */
+@media (max-width: 575.98px) {
+  .modal-dialog {
+    margin: 0.5rem;
+  }
+  
+  .modal-header,
+  .modal-body,
+  .modal-footer {
+    padding: 1rem;
+  }
+}
+
+/* Navbar improvements */
+.navbar-toggler {
+  border: none;
+  padding: 0.25rem 0.5rem;
+}
+
+.navbar-toggler:focus {
+  box-shadow: none;
+}
+
+/* Button improvements for touch */
+@media (max-width: 767.98px) {
+  .btn {
+    min-height: 44px; /* Touch target size */
+  }
+}
+
+/* Toast positioning for mobile */
+@media (max-width: 575.98px) {
+  .Toastify__toast-container {
+    width: 100vw;
+    padding: 0;
+    left: 0;
+    right: 0;
+    margin: 0;
+  }
+  
+  .Toastify__toast {
+    margin-bottom: 0;
+    border-radius: 0;
+  }
+}

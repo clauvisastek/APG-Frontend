@@ -1,0 +1,363 @@
+/* ============================================================================
+   DataTable Component Styles
+   Matches the "Vue d'ensemble des projets" design on HomePage
+   ============================================================================ */
+
+/* Main Card Container */
+.data-table-card {
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.04);
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  width: 100%;
+}
+
+.data-table-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: #111;
+  margin: 0 0 20px 0;
+}
+
+/* Table Wrapper */
+.data-table-wrapper {
+  overflow-x: auto;
+  margin-bottom: 20px;
+}
+
+/* Table Base Styles */
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+/* Header Row */
+.data-table-header-row {
+  background-color: #F3F4F6;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.data-table-header-cell {
+  padding: 14px 16px;
+  text-align: left;
+  border-bottom: 2px solid #E5E7EB;
+  vertical-align: top;
+}
+
+.data-table-header-content {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.data-table-header-label {
+  font-size: 11px;
+  font-weight: 700;
+  color: #6B7280;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+}
+
+/* Column Filters */
+.data-table-filter {
+  width: 100%;
+}
+
+.data-table-filter-input,
+.data-table-filter-select {
+  width: 100%;
+  padding: 6px 10px;
+  font-size: 13px;
+  border: 1px solid #D1D5DB;
+  border-radius: 6px;
+  background-color: #ffffff;
+  color: #111;
+  font-family: inherit;
+  transition: all 0.2s ease;
+}
+
+.data-table-filter-input:focus,
+.data-table-filter-select:focus {
+  outline: none;
+  border-color: #00A86B;
+  box-shadow: 0 0 0 3px rgba(0, 168, 107, 0.1);
+}
+
+.data-table-filter-input::placeholder {
+  color: #9CA3AF;
+  font-size: 12px;
+}
+
+.data-table-filter-select {
+  cursor: pointer;
+}
+
+/* Table Body */
+.data-table-row {
+  transition: background-color 0.15s ease;
+  height: 56px;
+}
+
+.data-table-row:hover {
+  background-color: #F9FAFB;
+}
+
+.data-table-row-clickable {
+  cursor: pointer;
+}
+
+.data-table-row-clickable:hover {
+  background-color: #F0FDF4;
+}
+
+.data-table-cell {
+  padding: 16px;
+  color: #111;
+  border-bottom: 1px solid #F3F4F6;
+  vertical-align: middle;
+}
+
+.data-table-row:last-child .data-table-cell {
+  border-bottom: none;
+}
+
+/* Empty State */
+.data-table-empty {
+  padding: 40px 16px;
+  text-align: center;
+  color: #9CA3AF;
+  font-size: 14px;
+  font-style: italic;
+}
+
+/* Pagination */
+.data-table-pagination {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 16px;
+  border-top: 1px solid #E5E7EB;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.data-table-pagination-info {
+  font-size: 14px;
+  color: #6B7280;
+}
+
+.data-table-pagination-controls {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.data-table-page-size-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  color: #6B7280;
+}
+
+.data-table-page-size-select {
+  padding: 6px 10px;
+  font-size: 14px;
+  border: 1px solid #D1D5DB;
+  border-radius: 6px;
+  background-color: #ffffff;
+  color: #111;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.data-table-page-size-select:focus {
+  outline: none;
+  border-color: #00A86B;
+  box-shadow: 0 0 0 3px rgba(0, 168, 107, 0.1);
+}
+
+.data-table-pagination-buttons {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.data-table-pagination-button {
+  padding: 8px 16px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #111;
+  background-color: #ffffff;
+  border: 1px solid #D1D5DB;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: inherit;
+}
+
+.data-table-pagination-button:hover:not(:disabled) {
+  background-color: #F9FAFB;
+  border-color: #00A86B;
+  color: #00A86B;
+}
+
+.data-table-pagination-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.data-table-pagination-page {
+  font-size: 14px;
+  color: #6B7280;
+  font-weight: 500;
+}
+
+/* ============================================================================
+   Reusable Components for Table Cells
+   ============================================================================ */
+
+/* Status Pills (matching HomePage overview design) */
+.status-pill {
+  display: inline-block;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: capitalize;
+}
+
+.status-profitable {
+  background-color: #D1FAE5;
+  color: #065F46;
+}
+
+.status-at-risk {
+  background-color: #FEE2E2;
+  color: #991B1B;
+}
+
+.status-to-validate {
+  background-color: #FEF3C7;
+  color: #92400E;
+}
+
+/* Project Type Badge */
+.project-type-badge {
+  display: inline-block;
+  padding: 4px 10px;
+  background-color: #E5E7EB;
+  color: #4B5563;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+/* Margin Cell (matching HomePage overview design) */
+.margin-cell {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 100px;
+}
+
+.margin-value {
+  font-weight: 600;
+  color: #111;
+  font-size: 14px;
+}
+
+.margin-progress-bar {
+  height: 4px;
+  background-color: #E5E7EB;
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.margin-progress-fill {
+  height: 100%;
+  border-radius: 2px;
+  transition: width 0.3s ease;
+}
+
+.margin-excellent {
+  background: linear-gradient(90deg, #00A86B 0%, #00C97A 100%);
+}
+
+.margin-good {
+  background: linear-gradient(90deg, #3B82F6 0%, #60A5FA 100%);
+}
+
+.margin-warning {
+  background: linear-gradient(90deg, #F59E0B 0%, #FBBF24 100%);
+}
+
+.margin-danger {
+  background: linear-gradient(90deg, #EF4444 0%, #F87171 100%);
+}
+
+/* Client margins warning styles */
+.client-margins-warning {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  background-color: #FEF3C7;
+  border: 1px solid #FCD34D;
+  border-radius: 6px;
+  color: #92400E;
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+.client-margins-warning .warning-badge {
+  font-size: 14px;
+  flex-shrink: 0;
+}
+
+.client-margins-warning .warning-text {
+  font-weight: 500;
+}
+
+/* ============================================================================
+   Responsive Design
+   ============================================================================ */
+
+@media (max-width: 768px) {
+  .data-table-card {
+    padding: 16px;
+  }
+
+  .data-table-header-cell,
+  .data-table-cell {
+    padding: 12px;
+  }
+
+  .data-table-pagination {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .data-table-pagination-controls {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .data-table-pagination-buttons {
+    justify-content: space-between;
+  }
+}
+
+@media (max-width: 640px) {
+  .data-table-wrapper {
+    overflow-x: scroll;
+  }
+
+  .data-table {
+    min-width: 800px;
+  }
+}

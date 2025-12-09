@@ -1,0 +1,333 @@
+/* ============================================================================
+   Information Page Styles
+   ============================================================================ */
+
+.information-page {
+  width: 100%;
+  min-height: calc(100vh - 72px);
+  background-color: #F5F7FB;
+}
+
+.information-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 40px var(--spacing-page);
+}
+
+/* Page Header */
+.information-header {
+  margin-bottom: 32px;
+  text-align: center;
+}
+
+.information-title {
+  font-size: 32px;
+  font-weight: 700;
+  color: #111;
+  margin: 0 0 12px 0;
+}
+
+.information-subtitle {
+  font-size: 16px;
+  color: #6B7280;
+  margin: 0;
+  max-width: 800px;
+  margin-left: auto;
+  margin-right: auto;
+  line-height: 1.6;
+}
+
+/* Info Cards */
+.info-card {
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 32px;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.04);
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  margin-bottom: 24px;
+}
+
+.card-title {
+  font-size: 22px;
+  font-weight: 600;
+  color: #111;
+  margin: 0 0 16px 0;
+}
+
+/* Intro Card */
+.intro-card {
+  text-align: center;
+}
+
+.intro-text {
+  font-size: 16px;
+  color: #4A4A4A;
+  line-height: 1.7;
+  margin: 0;
+  max-width: 900px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* Tabs */
+.tabs-card {
+  padding: 0;
+  overflow: hidden;
+}
+
+.tabs-header {
+  display: flex;
+  border-bottom: 2px solid #E5E7EB;
+  background-color: #F9FAFB;
+}
+
+.tab-button {
+  flex: 1;
+  padding: 18px 24px;
+  font-size: 15px;
+  font-weight: 600;
+  color: #6B7280;
+  background: none;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  position: relative;
+  font-family: inherit;
+}
+
+.tab-button:hover {
+  color: #111;
+  background-color: #F3F4F6;
+}
+
+.tab-button.active {
+  color: #00A86B;
+  background-color: #ffffff;
+}
+
+.tab-button.active::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background-color: #00A86B;
+}
+
+.tabs-content {
+  padding: 32px;
+}
+
+.tab-panel {
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Tiles Grid */
+.tiles-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 20px;
+}
+
+.info-tile {
+  background-color: #F9FAFB;
+  border: 1px solid #E5E7EB;
+  border-radius: 10px;
+  padding: 24px;
+  transition: all 0.2s ease;
+}
+
+.info-tile:hover {
+  background-color: #ffffff;
+  border-color: #00A86B;
+  box-shadow: 0 4px 12px rgba(0, 168, 107, 0.1);
+  transform: translateY(-2px);
+}
+
+.tile-icon {
+  font-size: 36px;
+  margin-bottom: 12px;
+}
+
+.tile-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #111;
+  margin: 0 0 8px 0;
+}
+
+.tile-text {
+  font-size: 14px;
+  color: #6B7280;
+  line-height: 1.6;
+  margin: 0;
+}
+
+/* User Cards Grid */
+.user-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 24px;
+}
+
+.user-card {
+  background: linear-gradient(135deg, #F9FAFB 0%, #ffffff 100%);
+  border: 1px solid #E5E7EB;
+  border-radius: 10px;
+  padding: 28px;
+  transition: all 0.2s ease;
+}
+
+.user-card:hover {
+  border-color: #00A86B;
+  box-shadow: 0 6px 16px rgba(0, 168, 107, 0.12);
+  transform: translateY(-3px);
+}
+
+.user-card-icon {
+  font-size: 48px;
+  margin-bottom: 16px;
+}
+
+.user-card-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: #111;
+  margin: 0 0 16px 0;
+}
+
+.user-card-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.user-card-list li {
+  font-size: 14px;
+  color: #4A4A4A;
+  line-height: 1.6;
+  margin-bottom: 10px;
+  padding-left: 20px;
+  position: relative;
+}
+
+.user-card-list li::before {
+  content: '✓';
+  position: absolute;
+  left: 0;
+  color: #00A86B;
+  font-weight: 700;
+  font-size: 16px;
+}
+
+.user-card-list li:last-child {
+  margin-bottom: 0;
+}
+
+/* Contact Card */
+.contact-card {
+  background: linear-gradient(135deg, #F0FDF4 0%, #ffffff 100%);
+  border: 1px solid #D1FAE5;
+  text-align: center;
+}
+
+.contact-text {
+  font-size: 15px;
+  color: #4A4A4A;
+  line-height: 1.6;
+  margin: 0;
+}
+
+.contact-text strong {
+  color: #111;
+}
+
+/* ============================================================================
+   Responsive Design
+   ============================================================================ */
+
+@media (max-width: 1024px) {
+  .tiles-grid {
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  }
+}
+
+@media (max-width: 768px) {
+  .information-container {
+    padding: 24px var(--spacing-page-mobile);
+  }
+
+  .information-title {
+    font-size: 26px;
+  }
+
+  .information-subtitle {
+    font-size: 15px;
+  }
+
+  .info-card {
+    padding: 24px;
+  }
+
+  .tabs-content {
+    padding: 24px;
+  }
+
+  .tabs-header {
+    flex-direction: column;
+  }
+
+  .tab-button {
+    text-align: left;
+    padding: 14px 20px;
+  }
+
+  .tab-button.active::after {
+    left: 0;
+    right: auto;
+    width: 4px;
+    height: 100%;
+    bottom: 0;
+  }
+
+  .tiles-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .user-cards-grid {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+}
+
+@media (max-width: 480px) {
+  .information-title {
+    font-size: 22px;
+  }
+
+  .tile-icon,
+  .user-card-icon {
+    font-size: 32px;
+  }
+
+  .info-card {
+    padding: 20px;
+  }
+
+  .tabs-content {
+    padding: 20px;
+  }
+}

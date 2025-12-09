@@ -1,0 +1,134 @@
+/* Astek Navbar */
+.astek-navbar {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  width: 100%;
+  background-color: var(--astek-dark);
+  box-shadow: 0 2px 8px var(--astek-shadow);
+}
+
+.astek-navbar-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 var(--spacing-page);
+  height: 72px;
+  max-width: 100%;
+}
+
+.astek-navbar-brand {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--astek-white);
+  text-decoration: none;
+  transition: color 0.2s ease;
+  letter-spacing: -0.5px;
+}
+
+.astek-navbar-brand strong {
+  color: var(--astek-green);
+}
+
+.astek-navbar-brand:hover {
+  color: var(--astek-green);
+}
+
+.astek-navbar-menu {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+}
+
+.astek-navbar-link {
+  padding: 10px 20px;
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--astek-white);
+  text-decoration: none;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+  position: relative;
+}
+
+.astek-navbar-link::after {
+  content: '';
+  position: absolute;
+  bottom: 6px;
+  left: 20px;
+  right: 20px;
+  height: 2px;
+  background-color: var(--astek-green);
+  transform: scaleX(0);
+  transition: transform 0.2s ease;
+}
+
+.astek-navbar-link:hover {
+  background-color: rgba(255, 255, 255, 0.08);
+  color: var(--astek-white);
+}
+
+.astek-navbar-link:hover::after {
+  transform: scaleX(1);
+}
+
+.astek-navbar-link.active {
+  background-color: rgba(0, 168, 107, 0.15);
+  color: var(--astek-green);
+}
+
+.astek-navbar-link.active::after {
+  transform: scaleX(1);
+}
+
+/* Footer */
+.astek-footer {
+  width: 100%;
+  background-color: var(--astek-dark);
+  color: var(--astek-text-muted);
+  padding: 24px 0;
+  margin-top: auto;
+}
+
+.astek-footer-content {
+  padding: 0 var(--spacing-page);
+  text-align: center;
+  font-size: 14px;
+}
+
+.astek-footer-content p {
+  margin: 0;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+/* Mobile responsive */
+@media (max-width: 768px) {
+  .astek-navbar-content {
+    padding: 0 var(--spacing-page-mobile);
+    height: 64px;
+  }
+
+  .astek-navbar-brand {
+    font-size: 16px;
+  }
+
+  .astek-navbar-menu {
+    gap: 2px;
+  }
+
+  .astek-navbar-link {
+    padding: 8px 12px;
+    font-size: 14px;
+  }
+
+  .astek-navbar-link::after {
+    left: 12px;
+    right: 12px;
+  }
+}
+  
+  .astek-footer-content {
+    padding: 0 var(--spacing-page-mobile);
+    font-size: 12px;
+  }
+}

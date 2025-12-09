@@ -1,0 +1,249 @@
+.import-description {
+  margin-bottom: 1.5rem;
+  padding: 1rem;
+  background-color: #f8f9fa;
+  border-left: 4px solid var(--astek-primary);
+  border-radius: 4px;
+}
+
+.import-description p {
+  margin: 0;
+  color: #495057;
+  font-size: 0.95rem;
+}
+
+.import-template-section,
+.import-columns-section,
+.import-upload-section {
+  margin-bottom: 2rem;
+}
+
+.import-template-section h4,
+.import-columns-section h4,
+.import-upload-section h4 {
+  font-size: 1rem;
+  font-weight: 600;
+  margin-bottom: 0.75rem;
+  color: #212529;
+}
+
+.import-template-section p,
+.import-upload-section p {
+  margin-bottom: 0.75rem;
+  color: #6c757d;
+  font-size: 0.9rem;
+}
+
+/* Colonnes Grid */
+.import-columns-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.import-column-item {
+  padding: 0.875rem;
+  background: #f8f9fa;
+  border: 1px solid #dee2e6;
+  border-radius: 6px;
+  transition: all 0.2s;
+}
+
+.import-column-item:hover {
+  background: #e9ecef;
+  border-color: var(--astek-primary);
+  transform: translateY(-2px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.import-column-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.import-column-name {
+  font-family: 'Courier New', monospace;
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: #212529;
+}
+
+.import-badge {
+  padding: 0.125rem 0.5rem;
+  border-radius: 12px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.import-badge-required {
+  background-color: #dc3545;
+  color: white;
+}
+
+.import-column-label {
+  font-size: 0.875rem;
+  color: #495057;
+  margin-bottom: 0.25rem;
+}
+
+.import-column-description {
+  font-size: 0.8rem;
+  color: #6c757d;
+  margin-top: 0.5rem;
+  font-style: italic;
+}
+
+.import-column-example {
+  font-size: 0.8rem;
+  color: #6c757d;
+  margin-top: 0.5rem;
+  padding: 0.25rem 0.5rem;
+  background: white;
+  border-radius: 4px;
+  font-family: 'Courier New', monospace;
+}
+
+/* Upload Zone */
+.import-upload-zone {
+  border: 2px dashed #ced4da;
+  border-radius: 8px;
+  padding: 2rem;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.3s;
+  background-color: #f8f9fa;
+  min-height: 180px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.import-upload-zone:hover {
+  border-color: var(--astek-primary);
+  background-color: #e9ecef;
+}
+
+.import-upload-zone-dragging {
+  border-color: var(--astek-primary);
+  background-color: rgba(0, 91, 187, 0.05);
+  transform: scale(1.02);
+}
+
+.import-upload-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.import-upload-icon {
+  font-size: 3rem;
+  margin-bottom: 0.5rem;
+}
+
+.import-upload-text {
+  font-size: 1rem;
+  color: #495057;
+  font-weight: 500;
+  margin: 0;
+}
+
+.import-upload-formats {
+  font-size: 0.85rem;
+  color: #6c757d;
+  margin: 0;
+}
+
+/* File Selected */
+.import-file-selected {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem;
+  background: white;
+  border: 1px solid #ced4da;
+  border-radius: 6px;
+  cursor: default;
+  width: 100%;
+  max-width: 500px;
+}
+
+.import-file-icon {
+  font-size: 2.5rem;
+  flex-shrink: 0;
+}
+
+.import-file-info {
+  flex-grow: 1;
+  text-align: left;
+  min-width: 0;
+}
+
+.import-file-name {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #212529;
+  margin-bottom: 0.25rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.import-file-size {
+  font-size: 0.85rem;
+  color: #6c757d;
+}
+
+.import-file-remove {
+  background: none;
+  border: none;
+  color: #dc3545;
+  font-size: 1.25rem;
+  cursor: pointer;
+  padding: 0.5rem;
+  border-radius: 4px;
+  transition: all 0.2s;
+  flex-shrink: 0;
+}
+
+.import-file-remove:hover {
+  background-color: rgba(220, 53, 69, 0.1);
+  transform: scale(1.1);
+}
+
+.import-file-remove:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Modal Large pour Import */
+.astek-modal-large {
+  max-width: 900px;
+  width: 95%;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .import-columns-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .astek-modal-large {
+    width: 98%;
+    max-width: none;
+  }
+
+  .import-upload-zone {
+    padding: 1.5rem;
+  }
+
+  .import-file-selected {
+    flex-direction: column;
+    text-align: center;
+  }
+}

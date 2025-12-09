@@ -1,0 +1,82 @@
+/* ============================================================================
+   Clients Page - Filter and Counter Styles
+   ============================================================================ */
+
+/* Incomplete clients badge */
+.clients-incomplete-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  background-color: #fffbeb; /* light amber */
+  color: #92400e; /* dark amber */
+  border: 1px solid #fcd34d; /* amber border */
+  white-space: nowrap;
+}
+
+/* Filter section */
+.clients-filter-section {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+/* Filter toggle buttons container */
+.clients-filter-toggle {
+  display: inline-flex;
+  gap: 8px;
+  padding: 4px;
+  background-color: #f3f4f6;
+  border-radius: 8px;
+}
+
+/* Individual filter button */
+.filter-button {
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  border: none;
+  background-color: transparent;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #6b7280;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.filter-button:hover {
+  background-color: #e5e7eb;
+  color: #374151;
+}
+
+/* Active filter button */
+.filter-button.active {
+  background-color: #00A86B; /* Astek green */
+  color: white;
+  font-weight: 600;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .clients-filter-section {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .clients-filter-toggle {
+    width: 100%;
+  }
+
+  .filter-button {
+    flex: 1;
+    text-align: center;
+  }
+
+  .clients-incomplete-badge {
+    font-size: 0.7rem;
+    padding: 0.2rem 0.6rem;
+  }
+}
