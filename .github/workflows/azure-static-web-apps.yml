@@ -36,7 +36,7 @@ jobs:
         env:
           VITE_API_URL: https://apg-backend-api-dev.azurewebsites.net
           VITE_AUTH0_DOMAIN: astekcanada.ca.auth0.com
-          VITE_AUTH0_CLIENT_ID: ${{ secrets.AUTH0_CLIENT_ID }}
+          VITE_AUTH0_CLIENT_ID: ${{ secrets.VITE_AUTH0_CLIENT_ID }}
           VITE_AUTH0_AUDIENCE: https://api.apg-astek.com
 
       - name: 🚀 Deploy to Azure Static Web Apps
