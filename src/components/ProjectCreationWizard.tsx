@@ -128,6 +128,9 @@ export const ProjectCreationWizard = ({
 }: ProjectCreationWizardProps) => {
   const { user } = useAuth0();
   
+  // Extraire les rôles de l'utilisateur
+  const userRoles = (user?.['https://apg-astek.com/roles'] as string[]) || [];
+  
   const [currentStep, setCurrentStep] = useState<WizardStep>(1);
   const [currentSection, setCurrentSection] = useState<Step1Section>('general');
   const [projectData, setProjectData] = useState<ProjectWizardStep1Values>(initialProjectData);
@@ -481,6 +484,8 @@ export const ProjectCreationWizard = ({
                     onAdd={handleAddTeamMember}
                     onRemove={handleRemoveTeamMember}
                     onChange={handleTeamMemberChange}
+                    targetMargin={projectData.margins.targetMarginPercent}
+                    minMargin={projectData.margins.minMarginPercent}
                   />
                 )}
               </div>
@@ -492,6 +497,7 @@ export const ProjectCreationWizard = ({
               data={projectData}
               createdByEmail={user?.email}
               approverEmail={import.meta.env.VITE_APG_VALIDATOR_EMAIL || 'validator@astek.com'}
+              userRoles={userRoles}
             />
           )}
         </div>

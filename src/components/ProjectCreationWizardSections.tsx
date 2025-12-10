@@ -419,6 +419,8 @@ interface TeamMembersSectionProps {
   onAdd: () => void;
   onRemove: (id: string) => void;
   onChange: (id: string, field: keyof ProjectTeamMember, value: any) => void;
+  targetMargin?: number;
+  minMargin?: number;
 }
 
 export const TeamMembersSection = ({
@@ -427,7 +429,15 @@ export const TeamMembersSection = ({
   onAdd,
   onRemove,
   onChange,
+  targetMargin = 0,
+  minMargin = 0,
 }: TeamMembersSectionProps) => {
+  // Vérifier si des membres ont des marges en dessous des objectifs
+  const membersWithLowMargins = teamMembers.filter(
+    m => m.grossMarginPercent < minMargin || m.netMarginPercent < minMargin
+  );
+  const hasMarginIssues = membersWithLowMargins.length > 0;
+
   return (
     <div className="wizard-section">
       <div className="wizard-section-header">
@@ -446,6 +456,39 @@ export const TeamMembersSection = ({
           + Ajouter un membre
         </button>
       </div>
+
+      {/* Avertissement si les marges ne correspondent pas aux objectifs */}
+      {hasMarginIssues && teamMembers.length > 0 && (
+        <div style={{
+          background: '#FEF3C7',
+          border: '1px solid #F59E0B',
+          borderRadius: '8px',
+          padding: '16px',
+          marginBottom: '20px',
+          display: 'flex',
+          gap: '12px'
+        }}>
+          <div style={{ fontSize: '20px' }}>⚠️</div>
+          <div style={{ flex: 1 }}>
+            <h4 style={{ margin: '0 0 8px 0', color: '#92400E', fontSize: '14px', fontWeight: 600 }}>
+              Objectifs de marge non atteints
+            </h4>
+            <p style={{ margin: '0 0 12px 0', color: '#78350F', fontSize: '13px', lineHeight: '1.5' }}>
+              {membersWithLowMargins.length} membre{membersWithLowMargins.length > 1 ? 's' : ''} de l'équipe {membersWithLowMargins.length > 1 ? 'ont' : 'a'} des marges inférieures aux objectifs du client :
+            </p>
+            <ul style={{ margin: '0 0 12px 0', paddingLeft: '20px', color: '#78350F', fontSize: '13px' }}>
+              {membersWithLowMargins.map((m, idx) => (
+                <li key={idx}>
+                  {m.firstName} {m.lastName} - Marge brute: {m.grossMarginPercent.toFixed(1)}% (min: {minMargin.toFixed(1)}%)
+                </li>
+              ))}
+            </ul>
+            <p style={{ margin: 0, color: '#78350F', fontSize: '13px', lineHeight: '1.5', fontWeight: 500 }}>
+              Vous pouvez soumettre la demande de validation. Le CFO examinera la constitution de l'équipe et validera ou rejetera le projet.
+            </p>
+          </div>
+        </div>
+      )}
 
       {teamMembers.length === 0 ? (
         <div className="wizard-empty-state">
@@ -623,17 +666,107 @@ interface ValidationRequestStepProps {
   data: ProjectWizardStep1Values;
   createdByEmail: string | undefined;
   approverEmail: string;
+  userRoles?: string[];
 }
 
 export const ValidationRequestStep = ({
   data,
   createdByEmail,
   approverEmail,
+  userRoles = [],
 }: ValidationRequestStepProps) => {
   const avgTeamMargin = data.teamMembers.length > 0
     ? data.teamMembers.reduce((sum, m) => sum + m.grossMarginPercent, 0) / data.teamMembers.length
     : 0;
 
+  // Vérifier si l'utilisateur est CFO ou Admin
+  const canValidate = userRoles.some(role => 
+    role === 'Admin' || role === 'CFO' || role === 'admin' || role === 'cfo'
+  );
+
+  // Si l'utilisateur n'est pas CFO/Admin, afficher un message différent
+  if (!canValidate) {
+    return (
+      <div className="wizard-validation-step">
+        <h3 className="wizard-section-title">Demande de validation envoyée</h3>
+        
+        <div style={{
+          background: '#DBEAFE',
+          border: '1px solid #3B82F6',
+          borderRadius: '8px',
+          padding: '24px',
+          marginTop: '20px',
+          marginBottom: '20px',
+          textAlign: 'center'
+        }}>
+          <div style={{ fontSize: '48px', marginBottom: '16px' }}>⏳</div>
+          <h4 style={{ margin: '0 0 12px 0', color: '#1E40AF', fontSize: '18px', fontWeight: 600 }}>
+            Votre projet est en cours de validation
+          </h4>
+          <p style={{ margin: '0 0 16px 0', color: '#1E3A8A', fontSize: '14px', lineHeight: '1.6' }}>
+            Votre demande de création de projet a été soumise avec succès et est maintenant en attente de validation par le CFO.
+          </p>
+          <div style={{
+            background: 'white',
+            borderRadius: '6px',
+            padding: '16px',
+            marginTop: '16px',
+            textAlign: 'left'
+          }}>
+            <p style={{ margin: '0 0 8px 0', color: '#374151', fontSize: '13px' }}>
+              <strong>Demandeur :</strong> {createdByEmail || 'Utilisateur non identifié'}
+            </p>
+            <p style={{ margin: '0 0 8px 0', color: '#374151', fontSize: '13px' }}>
+              <strong>Validateur :</strong> {approverEmail}
+            </p>
+            <p style={{ margin: 0, color: '#374151', fontSize: '13px' }}>
+              <strong>Statut :</strong> <span style={{ color: '#F59E0B', fontWeight: 600 }}>En attente de validation</span>
+            </p>
+          </div>
+          <p style={{ margin: '16px 0 0 0', color: '#1E3A8A', fontSize: '13px', fontStyle: 'italic' }}>
+            Vous recevrez une notification par email dès que le CFO aura pris une décision concernant votre projet.
+          </p>
+        </div>
+
+        {/* Project Summary - Collapsed view */}
+        <details style={{ marginTop: '20px' }}>
+          <summary style={{ 
+            cursor: 'pointer', 
+            fontSize: '14px', 
+            fontWeight: 600, 
+            color: '#374151',
+            padding: '12px',
+            background: '#F3F4F6',
+            borderRadius: '6px'
+          }}>
+            📋 Voir le récapitulatif du projet
+          </summary>
+          <div style={{ marginTop: '12px' }}>
+            {/* Project Summary Cards */}
+            <div className="wizard-summary-card">
+              <h4 className="wizard-summary-title">📋 Informations du projet</h4>
+              <div className="wizard-summary-grid">
+                <div className="wizard-summary-item">
+                  <span className="wizard-summary-label">Nom:</span>
+                  <span className="wizard-summary-value">{data.name}</span>
+                </div>
+                <div className="wizard-summary-item">
+                  <span className="wizard-summary-label">Code:</span>
+                  <span className="wizard-summary-value">{data.code}</span>
+                </div>
+                <div className="wizard-summary-item">
+                  <span className="wizard-summary-label">Client:</span>
+                  <span className="wizard-summary-value">{data.clientName}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </details>
+      </div>
+    );
+  }
+
+  // Vue complète pour CFO/Admin
   return (
     <div className="wizard-validation-step">
       <h3 className="wizard-section-title">Récapitulatif et demande de validation</h3>

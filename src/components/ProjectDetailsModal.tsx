@@ -101,6 +101,11 @@ export const ProjectDetailsModal = ({ project, isOpen, onClose }: ProjectDetails
               <span className="project-code-tag">{project.code || 'N/A'}</span>
               <span className="business-unit-tag">{project.businessUnitCode}</span>
               <span className={`status-tag ${getStatusClass()}`}>{project.status}</span>
+              {project.notes?.includes('Demande de validation') && (
+                <span className="validation-status-badge pending">
+                  ⏳ En attente de validation
+                </span>
+              )}
             </div>
           </div>
           <button className="modal-close-btn" onClick={onClose} aria-label="Fermer">
@@ -127,7 +132,7 @@ export const ProjectDetailsModal = ({ project, isOpen, onClose }: ProjectDetails
 
               <div className="info-row">
                 <span className="info-label">Business Unit:</span>
-                <span className="info-value">{project.businessUnit.name}</span>
+                <span className="info-value">{project.businessUnit?.name || 'N/A'}</span>
               </div>
 
               <div className="info-row">
