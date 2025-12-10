@@ -1,3 +1,4 @@
+import axios from 'axios';
 import type { 
   Resource, 
   ResourceMissionHistory, 
@@ -6,273 +7,99 @@ import type {
   CreateResourceInput 
 } from '../types/resource';
 
-const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+const API_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5001';
 
-// Mock data
-let mockResources: Resource[] = [
-  {
-    id: '1',
-    name: 'Marc Leblanc',
-    businessUnitCode: 'BU-1',
-    jobType: 'Développeur',
-    seniority: 'Sénior',
-    currentClient: 'Banque Nationale',
-    currentMission: 'Refonte des canaux numériques',
-    status: 'Actif en mission',
-    dailyCostRate: 600,
-    dailySellRate: 900,
-    marginRate: 33.33,
-    hireDate: '2020-03-15',
-    manager: 'Sophie Tremblay',
-    email: 'marc.leblanc@astek.com',
-    phone: '514-555-0101',
-    createdAt: new Date('2020-03-15').toISOString(),
-    updatedAt: new Date().toISOString(),
-  },
-  {
-    id: '2',
-    name: 'Sophie Martin',
-    businessUnitCode: 'BU-1',
-    jobType: 'Architecte',
-    seniority: 'Expert',
-    currentClient: 'Banque Nationale',
-    currentMission: 'Architecture Cloud',
-    status: 'Actif en mission',
-    dailyCostRate: 800,
-    dailySellRate: 1200,
-    marginRate: 33.33,
-    hireDate: '2018-06-01',
-    manager: 'Sophie Tremblay',
-    email: 'sophie.martin@astek.com',
-    phone: '514-555-0102',
-    createdAt: new Date('2018-06-01').toISOString(),
-    updatedAt: new Date().toISOString(),
-  },
-  {
-    id: '3',
-    name: 'Julie Chen',
-    businessUnitCode: 'BU-2',
-    jobType: 'Analyste d\'affaires',
-    seniority: 'Intermédiaire',
-    currentClient: 'TechStart Inc.',
-    currentMission: 'Data & Analytics',
-    status: 'Actif en mission',
-    dailyCostRate: 500,
-    dailySellRate: 750,
-    marginRate: 33.33,
-    hireDate: '2021-09-01',
-    manager: 'Jean Dupont',
-    email: 'julie.chen@astek.com',
-    phone: '514-555-0103',
-    createdAt: new Date('2021-09-01').toISOString(),
-    updatedAt: new Date().toISOString(),
-  },
-  {
-    id: '4',
-    name: 'Thomas Roy',
-    businessUnitCode: 'BU-3',
-    jobType: 'Développeur',
-    seniority: 'Sénior',
-    currentClient: 'Global Solutions SARL',
-    currentMission: 'SAP Modernisation',
-    status: 'Actif en mission',
-    dailyCostRate: 700,
-    dailySellRate: 1000,
-    marginRate: 30,
-    hireDate: '2019-11-20',
-    manager: 'Marie Bouchard',
-    email: 'thomas.roy@astek.com',
-    phone: '514-555-0104',
-    createdAt: new Date('2019-11-20').toISOString(),
-    updatedAt: new Date().toISOString(),
-  },
-  {
-    id: '5',
-    name: 'Pierre Dubois',
-    businessUnitCode: 'BU-2',
-    jobType: 'QA',
-    seniority: 'Sénior',
-    status: 'Disponible',
-    dailyCostRate: 550,
-    dailySellRate: 850,
-    marginRate: 35.29,
-    hireDate: '2020-01-10',
-    manager: 'Jean Dupont',
-    email: 'pierre.dubois@astek.com',
-    phone: '514-555-0105',
-    createdAt: new Date('2020-01-10').toISOString(),
-    updatedAt: new Date().toISOString(),
-  },
-  {
-    id: '6',
-    name: 'Marie Gagnon',
-    businessUnitCode: 'BU-1',
-    jobType: 'Développeur',
-    seniority: 'Junior',
-    status: 'En intercontrat',
-    dailyCostRate: 400,
-    dailySellRate: 600,
-    marginRate: 33.33,
-    hireDate: '2023-05-15',
-    manager: 'Sophie Tremblay',
-    email: 'marie.gagnon@astek.com',
-    phone: '514-555-0106',
-    createdAt: new Date('2023-05-15').toISOString(),
-    updatedAt: new Date().toISOString(),
-  },
-];
-
-const mockMissionHistory: Record<string, ResourceMissionHistory[]> = {
-  '1': [
-    {
-      id: 'mh-1',
-      resourceId: '1',
-      type: 'AT',
-      clientName: 'Banque Nationale',
-      missionName: 'Refonte des canaux numériques',
-      businessUnitCode: 'BU-1',
-      jobType: 'Développeur',
-      startDate: '2024-01-15',
-      endDate: null,
-      dailyCostRate: 600,
-      dailySellRate: 900,
-      marginRate: 33.33,
-      billedDays: 180,
-    },
-    {
-      id: 'mh-2',
-      resourceId: '1',
-      type: 'Projet',
-      clientName: 'Desjardins',
-      missionName: 'Portail Client Web',
-      businessUnitCode: 'BU-1',
-      jobType: 'Développeur',
-      startDate: '2022-06-01',
-      endDate: '2023-12-31',
-      dailyCostRate: 550,
-      dailySellRate: 850,
-      marginRate: 35.29,
-      billedDays: 320,
-    },
-  ],
-  '2': [
-    {
-      id: 'mh-3',
-      resourceId: '2',
-      type: 'AT',
-      clientName: 'Banque Nationale',
-      missionName: 'Architecture Cloud',
-      businessUnitCode: 'BU-1',
-      jobType: 'Architecte',
-      startDate: '2024-02-01',
-      endDate: '2024-12-31',
-      dailyCostRate: 800,
-      dailySellRate: 1200,
-      marginRate: 33.33,
-      billedDays: 200,
-    },
-  ],
-  '3': [
-    {
-      id: 'mh-4',
-      resourceId: '3',
-      type: 'AT',
-      clientName: 'TechStart Inc.',
-      missionName: 'Data & Analytics',
-      businessUnitCode: 'BU-2',
-      jobType: 'Analyste d\'affaires',
-      startDate: '2024-03-01',
-      endDate: null,
-      dailyCostRate: 500,
-      dailySellRate: 750,
-      marginRate: 33.33,
-      billedDays: 150,
-    },
-  ],
-  '4': [
-    {
-      id: 'mh-5',
-      resourceId: '4',
-      type: 'AT',
-      clientName: 'Global Solutions SARL',
-      missionName: 'SAP Modernisation',
-      businessUnitCode: 'BU-3',
-      jobType: 'Développeur',
-      startDate: '2024-01-01',
-      endDate: '2024-06-30',
-      dailyCostRate: 700,
-      dailySellRate: 1000,
-      marginRate: 30,
-      billedDays: 120,
-    },
-  ],
-  '5': [],
-  '6': [],
+// Helper to transform backend resource to frontend format
+const transformResource = (backendResource: any): Resource => {
+  return {
+    id: backendResource.id.toString(),
+    name: backendResource.name,
+    businessUnitCode: backendResource.businessUnit?.code || '',
+    jobType: backendResource.jobType,
+    seniority: backendResource.seniority,
+    currentClient: backendResource.currentClient,
+    currentMission: backendResource.currentMission,
+    status: backendResource.status,
+    dailyCostRate: backendResource.dailyCostRate,
+    dailySellRate: backendResource.dailySellRate,
+    marginRate: backendResource.marginRate,
+    hireDate: backendResource.hireDate,
+    manager: backendResource.manager,
+    email: backendResource.email,
+    phone: backendResource.phone,
+    createdAt: backendResource.createdAt,
+    updatedAt: backendResource.updatedAt,
+  };
 };
 
 export const resourcesApi = {
   list: async (filters?: ResourceFilters): Promise<Resource[]> => {
-    await delay(300);
+    const params = new URLSearchParams();
     
-    let filtered = [...mockResources];
+    if (filters?.name) params.append('name', filters.name);
+    if (filters?.jobType) params.append('jobType', filters.jobType);
+    if (filters?.seniority) params.append('seniority', filters.seniority);
+    if (filters?.status) params.append('status', filters.status);
     
-    if (filters?.name) {
-      const search = filters.name.toLowerCase();
-      filtered = filtered.filter(r => 
-        r.name.toLowerCase().includes(search)
-      );
-    }
-    
-    if (filters?.businessUnitCode) {
-      filtered = filtered.filter(r => 
-        r.businessUnitCode === filters.businessUnitCode
-      );
-    }
-    
-    if (filters?.jobType) {
-      filtered = filtered.filter(r => 
-        r.jobType === filters.jobType
-      );
-    }
-    
-    if (filters?.seniority) {
-      filtered = filtered.filter(r => 
-        r.seniority === filters.seniority
-      );
-    }
-    
-    if (filters?.status) {
-      filtered = filtered.filter(r => 
-        r.status === filters.status
-      );
-    }
-    
-    if (filters?.currentClient) {
-      filtered = filtered.filter(r => 
-        r.currentClient?.toLowerCase().includes(filters.currentClient!.toLowerCase())
-      );
-    }
-    
-    return filtered;
+    const response = await axios.get(`${API_URL}/api/Resources?${params.toString()}`);
+    return response.data.map(transformResource);
   },
 
   getById: async (id: string): Promise<Resource | undefined> => {
-    await delay(200);
-    return mockResources.find(r => r.id === id);
+    try {
+      const response = await axios.get(`${API_URL}/api/Resources/${id}`);
+      return transformResource(response.data);
+    } catch (error: any) {
+      if (error.response?.status === 404) {
+        return undefined;
+      }
+      throw error;
+    }
+  },
+
+  getByEmail: async (email: string): Promise<Resource | undefined> => {
+    try {
+      const response = await axios.get(`${API_URL}/api/Resources/by-email/${encodeURIComponent(email)}`);
+      return transformResource(response.data);
+    } catch (error: any) {
+      if (error.response?.status === 404) {
+        return undefined;
+      }
+      throw error;
+    }
   },
 
   getMissionHistory: async (resourceId: string): Promise<ResourceMissionHistory[]> => {
-    await delay(200);
-    return mockMissionHistory[resourceId] || [];
+    try {
+      const response = await axios.get(`${API_URL}/api/Resources/${resourceId}/history`);
+      return response.data.map((pr: any) => ({
+        id: pr.id.toString(),
+        resourceId: pr.resourceId.toString(),
+        type: 'Projet',
+        clientName: pr.project?.client?.name || '',
+        missionName: pr.project?.name || '',
+        businessUnitCode: pr.project?.businessUnit?.code || '',
+        jobType: pr.role,
+        startDate: pr.startDate,
+        endDate: pr.endDate,
+        dailyCostRate: pr.dailyCostRate,
+        dailySellRate: pr.dailySellRate,
+        marginRate: pr.grossMarginPercent,
+        billedDays: pr.billedDays || 0,
+      }));
+    } catch (error: any) {
+      if (error.response?.status === 404) {
+        return [];
+      }
+      throw error;
+    }
   },
 
   getKPIs: async (resourceId: string): Promise<ResourceKPIs> => {
-    await delay(200);
+    const history = await resourcesApi.getMissionHistory(resourceId);
     
-    // Mock KPIs calculation
-    const history = mockMissionHistory[resourceId] || [];
     const currentYear = new Date().getFullYear();
-    const workableDays = 220; // Approximate workable days per year
+    const workableDays = 220;
     
     const ytdHistory = history.filter(h => {
       const startYear = new Date(h.startDate).getFullYear();
@@ -298,56 +125,71 @@ export const resourcesApi = {
   },
 
   create: async (input: CreateResourceInput): Promise<Resource> => {
-    await delay(400);
+    const buResponse = await axios.get(`${API_URL}/api/BusinessUnits`);
+    const businessUnit = buResponse.data.find((bu: any) => bu.code === input.businessUnitCode);
     
-    const marginRate = input.dailySellRate > 0 
-      ? (((input.dailySellRate - input.dailyCostRate) / input.dailySellRate) * 100)
-      : 0;
+    if (!businessUnit) {
+      throw new Error(`Business Unit ${input.businessUnitCode} not found`);
+    }
     
-    const newResource: Resource = {
-      ...input,
-      id: `resource-${Date.now()}`,
-      marginRate: Number(marginRate.toFixed(2)),
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
+    const nameParts = input.name.split(' ');
+    const payload = {
+      firstName: nameParts[0] || input.name,
+      lastName: nameParts.slice(1).join(' ') || '',
+      email: input.email || `${input.name.toLowerCase().replace(/\s+/g, '.')}@astek.com`,
+      businessUnitId: businessUnit.id,
+      jobType: input.jobType,
+      seniority: input.seniority,
+      dailyCostRate: input.dailyCostRate,
+      dailySellRate: input.dailySellRate,
+      hireDate: input.hireDate,
+      currentClient: input.currentClient,
+      currentMission: input.currentMission,
+      status: input.status,
+      manager: input.manager,
+      phone: input.phone,
     };
     
-    mockResources.push(newResource);
-    return newResource;
+    const response = await axios.post(`${API_URL}/api/Resources`, payload);
+    return transformResource(response.data);
   },
 
   update: async (id: string, input: Partial<CreateResourceInput>): Promise<Resource> => {
-    await delay(400);
+    let businessUnitId: number | undefined;
     
-    const index = mockResources.findIndex(r => r.id === id);
-    if (index === -1) {
-      throw new Error('Ressource non trouvée');
+    if (input.businessUnitCode) {
+      const buResponse = await axios.get(`${API_URL}/api/BusinessUnits`);
+      const businessUnit = buResponse.data.find((bu: any) => bu.code === input.businessUnitCode);
+      if (businessUnit) {
+        businessUnitId = businessUnit.id;
+      }
     }
     
-    const updated = {
-      ...mockResources[index],
-      ...input,
-      updatedAt: new Date().toISOString(),
-    };
+    const payload: any = {};
     
-    if (input.dailySellRate !== undefined || input.dailyCostRate !== undefined) {
-      const sellRate = input.dailySellRate ?? updated.dailySellRate;
-      const costRate = input.dailyCostRate ?? updated.dailyCostRate;
-      updated.marginRate = Number((((sellRate - costRate) / sellRate) * 100).toFixed(2));
+    if (input.name) {
+      const nameParts = input.name.split(' ');
+      payload.firstName = nameParts[0] || input.name;
+      payload.lastName = nameParts.slice(1).join(' ') || '';
     }
+    if (input.email) payload.email = input.email;
+    if (businessUnitId) payload.businessUnitId = businessUnitId;
+    if (input.jobType) payload.jobType = input.jobType;
+    if (input.seniority) payload.seniority = input.seniority;
+    if (input.dailyCostRate !== undefined) payload.dailyCostRate = input.dailyCostRate;
+    if (input.dailySellRate !== undefined) payload.dailySellRate = input.dailySellRate;
+    if (input.hireDate) payload.hireDate = input.hireDate;
+    if (input.currentClient !== undefined) payload.currentClient = input.currentClient;
+    if (input.currentMission !== undefined) payload.currentMission = input.currentMission;
+    if (input.status) payload.status = input.status;
+    if (input.manager !== undefined) payload.manager = input.manager;
+    if (input.phone !== undefined) payload.phone = input.phone;
     
-    mockResources[index] = updated;
-    return updated;
+    const response = await axios.put(`${API_URL}/api/Resources/${id}`, payload);
+    return transformResource(response.data);
   },
 
   remove: async (id: string): Promise<void> => {
-    await delay(300);
-    
-    const index = mockResources.findIndex(r => r.id === id);
-    if (index === -1) {
-      throw new Error('Ressource non trouvée');
-    }
-    
-    mockResources.splice(index, 1);
+    await axios.delete(`${API_URL}/api/Resources/${id}`);
   },
 };

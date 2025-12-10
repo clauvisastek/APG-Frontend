@@ -1,4 +1,6 @@
+import { useState } from 'react';
 import { useClients } from '../hooks/useApi';
+import { resourcesApi } from '../services/resourcesApi';
 import type { BusinessUnitFilter } from '../hooks/useUserBusinessUnitFilter';
 import type { ProjectWizardStep1Values, ProjectTeamMember, ResourceType } from './ProjectCreationWizard';
 
@@ -432,6 +434,54 @@ export const TeamMembersSection = ({
   targetMargin = 0,
   minMargin = 0,
 }: TeamMembersSectionProps) => {
+  // State pour gérer les ressources existantes trouvées par email
+  const [existingResourcesNotification, setExistingResourcesNotification] = useState<{[email: string]: boolean}>({});
+
+  // Fonction pour vérifier si une ressource existe déjà
+  const checkResourceExists = async (email: string, memberId: string) => {
+    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      return; // Skip if email is empty or invalid
+    }
+
+    try {
+      const existingResource = await resourcesApi.getByEmail(email);
+      
+      if (existingResource) {
+        // Ressource existe - pré-remplir les champs et notifier l'utilisateur
+        setExistingResourcesNotification(prev => ({ ...prev, [email]: true }));
+        
+        // Auto-fill fields from existing resource
+        const member = teamMembers.find(m => m.id === memberId);
+        if (member) {
+          // Only fill if fields are empty
+          if (!member.firstName) onChange(memberId, 'firstName', existingResource.firstName || '');
+          if (!member.lastName) onChange(memberId, 'lastName', existingResource.lastName || '');
+          if (!member.role) onChange(memberId, 'role', existingResource.jobType || '');
+          if (member.internalCostRate === 0) onChange(memberId, 'internalCostRate', existingResource.dailyCostRate || 0);
+          if (member.proposedBillRate === 0) onChange(memberId, 'proposedBillRate', existingResource.dailySellRate || 0);
+        }
+        
+        // Auto-clear notification after 5 seconds
+        setTimeout(() => {
+          setExistingResourcesNotification(prev => {
+            const newState = { ...prev };
+            delete newState[email];
+            return newState;
+          });
+        }, 5000);
+      } else {
+        // Clear notification if resource doesn't exist
+        setExistingResourcesNotification(prev => {
+          const newState = { ...prev };
+          delete newState[email];
+          return newState;
+        });
+      }
+    } catch (error) {
+      console.error('Error checking resource existence:', error);
+    }
+  };
+
   // Vérifier si des membres ont des marges en dessous des objectifs
   const membersWithLowMargins = teamMembers.filter(
     m => m.grossMarginPercent < minMargin || m.netMarginPercent < minMargin
@@ -518,6 +568,50 @@ export const TeamMembersSection = ({
                 >
                   ×
                 </button>
+              </div>
+
+              {/* Email field - used for resource uniqueness check */}
+              <div className="astek-form-group">
+                <label className="astek-label">
+                  Email <span className="required-star">*</span>
+                </label>
+                <input
+                  type="email"
+                  className={`astek-input ${errors[`team_${index}_email`] ? 'is-invalid' : ''}`}
+                  value={member.email}
+                  onChange={(e) => {
+                    onChange(member.id, 'email', e.target.value);
+                  }}
+                  onBlur={(e) => {
+                    // Check resource existence when user leaves the email field
+                    checkResourceExists(e.target.value, member.id);
+                  }}
+                  placeholder="prenom.nom@astek.ca"
+                />
+                {errors[`team_${index}_email`] && (
+                  <div className="astek-error-message">{errors[`team_${index}_email`]}</div>
+                )}
+                
+                {/* Notification si la ressource existe déjà */}
+                {existingResourcesNotification[member.email] && (
+                  <div style={{
+                    marginTop: '8px',
+                    padding: '8px 12px',
+                    background: '#DBEAFE',
+                    border: '1px solid #3B82F6',
+                    borderRadius: '4px',
+                    fontSize: '13px',
+                    color: '#1E40AF',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '8px'
+                  }}>
+                    <span>ℹ️</span>
+                    <span>
+                      Cette ressource existe déjà dans la base de données. Les informations ont été pré-remplies automatiquement.
+                    </span>
+                  </div>
+                )}
               </div>
 
               <div className="astek-row">

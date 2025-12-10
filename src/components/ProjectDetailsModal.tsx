@@ -1,4 +1,5 @@
 import { useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import type { Project, TeamMember } from '../types';
 import './ProjectDetailsModal.css';
@@ -10,6 +11,8 @@ interface ProjectDetailsModalProps {
 }
 
 export const ProjectDetailsModal = ({ project, isOpen, onClose }: ProjectDetailsModalProps) => {
+  const navigate = useNavigate();
+
   // Handle ESC key press
   useEffect(() => {
     const handleEscape = (e: KeyboardEvent) => {
@@ -24,24 +27,9 @@ export const ProjectDetailsModal = ({ project, isOpen, onClose }: ProjectDetails
 
   if (!isOpen) return null;
 
-  // Mock data for global margin history if not present
-  const marginHistory = project.globalMarginHistory || [
-    { label: 'Jan', value: 20 },
-    { label: 'Fev', value: 22 },
-    { label: 'Mar', value: 21 },
-    { label: 'Avr', value: 23 },
-    { label: 'Mai', value: 25 },
-    { label: 'Jun', value: project.targetMargin },
-  ];
-
-  // Mock team members if not present
-  const teamMembers: TeamMember[] = project.teamMembers || [
-    { id: '1', name: 'Sophie Martin', role: 'Tech Lead', costRate: 400, sellRate: 600, grossMargin: 33, netMargin: 30 },
-    { id: '2', name: 'Marc Dubois', role: 'Senior Dev', costRate: 350, sellRate: 500, grossMargin: 30, netMargin: 28 },
-    { id: '3', name: 'Julie Chen', role: 'Developer', costRate: 300, sellRate: 450, grossMargin: 33, netMargin: 31 },
-    { id: '4', name: 'Thomas Roy', role: 'Junior Dev', costRate: 250, sellRate: 350, grossMargin: 29, netMargin: 26 },
-    { id: '5', name: 'Emma Petit', role: 'Consultant', costRate: 200, sellRate: 280, grossMargin: 29, netMargin: 25 },
-  ];
+  // Use real data from project - no mocks
+  const marginHistory = project.globalMarginHistory || [];
+  const teamMembers: TeamMember[] = project.teamMembers || [];
 
   // Prepare team members data for chart
   const teamMembersData = teamMembers.map(member => ({
@@ -54,6 +42,12 @@ export const ProjectDetailsModal = ({ project, isOpen, onClose }: ProjectDetails
   const sortedByMargin = [...teamMembers].sort((a, b) => b.grossMargin - a.grossMargin);
   const topDrivers = sortedByMargin.slice(0, 3);
   const bottomDraggers = sortedByMargin.slice(-3).reverse();
+
+  // Navigate to resources page
+  const handleViewResources = () => {
+    onClose();
+    navigate('/resources');
+  };
 
   // Format currency
   const formatCurrency = (amount?: number) => {
@@ -191,98 +185,182 @@ export const ProjectDetailsModal = ({ project, isOpen, onClose }: ProjectDetails
             {/* Chart 1: Global Margin Evolution */}
             <div className="chart-section">
               <h3 className="section-title">Évolution de la marge globale</h3>
-              <ResponsiveContainer width="100%" height={200}>
-                <LineChart data={marginHistory}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-                  <XAxis dataKey="label" stroke="#6b7280" style={{ fontSize: '12px' }} />
-                  <YAxis stroke="#6b7280" style={{ fontSize: '12px' }} />
-                  <Tooltip 
-                    contentStyle={{ 
-                      backgroundColor: '#fff', 
-                      border: '1px solid #e5e7eb',
-                      borderRadius: '8px',
-                      fontSize: '14px'
-                    }}
-                    formatter={(value: number) => [`${value}%`, 'Marge']}
-                  />
-                  <Line 
-                    type="monotone" 
-                    dataKey="value" 
-                    stroke="#00A859" 
-                    strokeWidth={3}
-                    dot={{ fill: '#00A859', r: 4 }}
-                    activeDot={{ r: 6 }}
-                  />
-                </LineChart>
-              </ResponsiveContainer>
+              <p style={{ fontSize: '13px', color: '#6b7280', marginBottom: '12px' }}>
+                Suivi de la marge en fonction des changements d'équipe
+              </p>
+              {marginHistory.length > 0 ? (
+                <ResponsiveContainer width="100%" height={200}>
+                  <LineChart data={marginHistory}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+                    <XAxis 
+                      dataKey="label" 
+                      stroke="#6b7280" 
+                      style={{ fontSize: '11px' }}
+                      angle={-45}
+                      textAnchor="end"
+                      height={60}
+                    />
+                    <YAxis 
+                      stroke="#6b7280" 
+                      style={{ fontSize: '12px' }}
+                      domain={[0, 'auto']}
+                      label={{ value: 'Marge (%)', angle: -90, position: 'insideLeft', style: { fontSize: '12px' } }}
+                    />
+                    <Tooltip 
+                      contentStyle={{ 
+                        backgroundColor: '#fff', 
+                        border: '1px solid #e5e7eb',
+                        borderRadius: '8px',
+                        fontSize: '14px',
+                        padding: '8px 12px'
+                      }}
+                      formatter={(value: number) => [`${Number(value).toFixed(2)}%`, 'Marge globale']}
+                      labelFormatter={(label) => `Date: ${label}`}
+                    />
+                    <Line 
+                      type="monotone" 
+                      dataKey="value" 
+                      stroke="#00A859" 
+                      strokeWidth={3}
+                      dot={{ fill: '#00A859', r: 5, strokeWidth: 2, stroke: '#fff' }}
+                      activeDot={{ r: 7, strokeWidth: 2 }}
+                    />
+                  </LineChart>
+                </ResponsiveContainer>
+              ) : (
+                <div style={{ 
+                  height: '200px', 
+                  display: 'flex', 
+                  flexDirection: 'column',
+                  alignItems: 'center', 
+                  justifyContent: 'center',
+                  background: '#f9fafb',
+                  borderRadius: '8px',
+                  color: '#6b7280',
+                  fontSize: '14px',
+                  gap: '8px'
+                }}>
+                  <span>📊</span>
+                  <span>Aucune donnée d'historique de marge disponible</span>
+                  <span style={{ fontSize: '12px' }}>L'historique sera créé automatiquement lors des modifications d'équipe</span>
+                </div>
+              )}
             </div>
 
             {/* Chart 2: Margin by Team Member */}
             <div className="chart-section">
               <h3 className="section-title">Marge par membre de l'équipe</h3>
-              <div className="chart-legend">
-                <span className="legend-item">
-                  <span className="legend-color legend-driver"></span>
-                  Génère de la marge
-                </span>
-                <span className="legend-item">
-                  <span className="legend-color legend-dragger"></span>
-                  Impacte négativement
-                </span>
-              </div>
-              <ResponsiveContainer width="100%" height={220}>
-                <BarChart data={teamMembersData}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-                  <XAxis 
-                    dataKey="name" 
-                    stroke="#6b7280" 
-                    angle={-45}
-                    textAnchor="end"
-                    height={100}
-                    style={{ fontSize: '11px' }}
-                  />
-                  <YAxis stroke="#6b7280" style={{ fontSize: '12px' }} />
-                  <Tooltip 
-                    contentStyle={{ 
-                      backgroundColor: '#fff', 
-                      border: '1px solid #e5e7eb',
-                      borderRadius: '8px',
-                      fontSize: '14px'
-                    }}
-                    formatter={(value: number) => [`${value}%`, 'Marge']}
-                  />
-                  <Bar 
-                    dataKey="margin" 
-                    fill="#00A859"
-                    radius={[8, 8, 0, 0]}
-                  />
-                </BarChart>
-              </ResponsiveContainer>
+              {teamMembers.length > 0 ? (
+                <>
+                  <div className="chart-legend">
+                    <span className="legend-item">
+                      <span className="legend-color legend-driver"></span>
+                      Génère de la marge
+                    </span>
+                    <span className="legend-item">
+                      <span className="legend-color legend-dragger"></span>
+                      Impacte négativement
+                    </span>
+                  </div>
+                  <ResponsiveContainer width="100%" height={220}>
+                    <BarChart data={teamMembersData}>
+                      <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+                      <XAxis 
+                        dataKey="name" 
+                        stroke="#6b7280" 
+                        angle={-45}
+                        textAnchor="end"
+                        height={100}
+                        style={{ fontSize: '11px' }}
+                      />
+                      <YAxis stroke="#6b7280" style={{ fontSize: '12px' }} />
+                      <Tooltip 
+                        contentStyle={{ 
+                          backgroundColor: '#fff', 
+                          border: '1px solid #e5e7eb',
+                          borderRadius: '8px',
+                          fontSize: '14px'
+                        }}
+                        formatter={(value: number) => [`${value}%`, 'Marge']}
+                      />
+                      <Bar 
+                        dataKey="margin" 
+                        fill="#00A859"
+                        radius={[8, 8, 0, 0]}
+                      />
+                    </BarChart>
+                  </ResponsiveContainer>
 
-              {/* Team Summary */}
-              <div className="team-summary">
-                <div className="summary-section">
-                  <h4 className="summary-title">🌟 Top contributeurs :</h4>
-                  <ul className="summary-list">
-                    {topDrivers.map(member => (
-                      <li key={member.id}>
-                        <strong>{member.name}</strong> ({member.role}) - {member.grossMargin}%
-                      </li>
-                    ))}
-                  </ul>
-                </div>
+                  {/* Team Summary */}
+                  {topDrivers.length > 0 && (
+                    <div className="team-summary">
+                      {topDrivers.length > 0 && (
+                        <div className="summary-section">
+                          <h4 className="summary-title">🌟 Top contributeurs :</h4>
+                          <ul className="summary-list">
+                            {topDrivers.map(member => (
+                              <li key={member.id}>
+                                <strong>{member.name}</strong> ({member.role}) - {member.grossMargin}%
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      )}
 
-                <div className="summary-section">
-                  <h4 className="summary-title">⚠️ À surveiller :</h4>
-                  <ul className="summary-list">
-                    {bottomDraggers.map(member => (
-                      <li key={member.id}>
-                        <strong>{member.name}</strong> ({member.role}) - {member.grossMargin}%
-                      </li>
-                    ))}
-                  </ul>
+                      {bottomDraggers.length > 0 && (
+                        <div className="summary-section">
+                          <h4 className="summary-title">⚠️ À surveiller :</h4>
+                          <ul className="summary-list">
+                            {bottomDraggers.map(member => (
+                              <li key={member.id}>
+                                <strong>{member.name}</strong> ({member.role}) - {member.grossMargin}%
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                  
+                  {/* Button to view resources */}
+                  <div style={{ 
+                    marginTop: '20px', 
+                    paddingTop: '16px', 
+                    borderTop: '1px solid #e5e7eb',
+                    display: 'flex',
+                    justifyContent: 'center'
+                  }}>
+                    <button
+                      onClick={handleViewResources}
+                      className="astek-btn astek-btn-secondary"
+                      style={{
+                        padding: '10px 20px',
+                        fontSize: '14px',
+                        fontWeight: 500,
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '8px'
+                      }}
+                    >
+                      <span>👥</span>
+                      Consulter les ressources
+                    </button>
+                  </div>
+                </>
+              ) : (
+                <div style={{ 
+                  height: '220px', 
+                  display: 'flex', 
+                  alignItems: 'center', 
+                  justifyContent: 'center',
+                  background: '#f9fafb',
+                  borderRadius: '8px',
+                  color: '#6b7280',
+                  fontSize: '14px'
+                }}>
+                  Aucun membre d'équipe assigné à ce projet
                 </div>
-              </div>
+              )}
             </div>
           </div>
         </div>

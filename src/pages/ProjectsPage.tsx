@@ -79,6 +79,7 @@ export const ProjectsPage = () => {
         notes: `Demande de validation envoyée à ${validationRequest.approverEmail}\nÉquipe: ${projectData.teamMembers.length} membre(s)`,
         teamMembers: projectData.teamMembers.map(tm => ({
           id: tm.id,
+          email: tm.email, // Include email for resource uniqueness
           name: `${tm.firstName} ${tm.lastName}`,
           role: tm.role,
           costRate: tm.internalCostRate,
@@ -138,6 +139,8 @@ export const ProjectsPage = () => {
         code: dto.businessUnitCode,
       },
       businessUnitCode: dto.businessUnitCode,
+      teamMembers: dto.teamMembers || [],
+      globalMarginHistory: dto.globalMarginHistory || [],
       ytdRevenue: dto.ytdRevenue || undefined,
       createdAt: dto.createdAt,
       updatedAt: dto.updatedAt || dto.createdAt,

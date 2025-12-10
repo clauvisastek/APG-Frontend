@@ -83,6 +83,35 @@ export const projectApi = {
       body: JSON.stringify(updates),
     });
   },
+
+  // Update project (all fields including team and margins)
+  update: async (
+    id: string,
+    updates: {
+      name?: string;
+      code?: string;
+      type?: string;
+      startDate?: string;
+      endDate?: string;
+      targetMargin?: number;
+      minMargin?: number;
+      teamMembers?: Array<{
+        email: string;
+        name: string;
+        role: string;
+        costRate: number;
+        sellRate: number;
+        grossMargin: number;
+        netMargin: number;
+      }>;
+    }
+  ): Promise<Project> => {
+    return fetchWithAuth<Project>(`${API_BASE_URL}/api/Projects/${id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(updates),
+    });
+  },
 };
 
 // API functions for Business Units

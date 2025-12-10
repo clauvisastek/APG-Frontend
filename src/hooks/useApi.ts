@@ -197,6 +197,40 @@ export const useUpdateProjectNonCritical = () => {
   });
 };
 
+export const useUpdateProject = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({
+      id,
+      updates,
+    }: {
+      id: string;
+      updates: {
+        name?: string;
+        code?: string;
+        type?: string;
+        startDate?: string;
+        endDate?: string;
+        targetMargin?: number;
+        minMargin?: number;
+        teamMembers?: Array<{
+          email: string;
+          name: string;
+          role: string;
+          costRate: number;
+          sellRate: number;
+          grossMargin: number;
+          netMargin: number;
+        }>;
+      };
+    }) => projectApi.update(id, updates),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['projects'] });
+    },
+  });
+};
+
 export const useProjectChangeRequests = () => {
   return useQuery({
     queryKey: ['projectChangeRequests'],

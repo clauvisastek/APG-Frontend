@@ -8,38 +8,8 @@ import type {
   ImportResult,
 } from '../types/calculette';
 
-// Mock data - À remplacer par de vrais appels API
-let mockConfig: CalculetteConfig = {
-  globalCosts: {
-    chargesPatronales: 65,
-    coutsIndirects: 5000,
-    heuresFacturablesParAn: 1600,
-  },
-  clientConfigs: [
-    {
-      clientId: '1',
-      clientName: 'Banque Nationale',
-      margeCible: 25,
-      vendantCibleHoraire: 120,
-    },
-    {
-      clientId: '2',
-      clientName: 'Desjardins',
-      margeCible: 30,
-      vendantCibleHoraire: 130,
-    },
-    {
-      clientId: '3',
-      clientName: 'Hydro-Québec',
-      margeCible: 22,
-      vendantCibleHoraire: 110,
-    },
-  ],
-};
-
-let mockScenarios: CalculetteScenario[] = [];
-
-const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+// TODO: Implement real API calls when backend endpoints are available
+// All functions currently return empty/default data with console warnings
 
 /**
  * Calcule le coûtant moyen horaire pour un salarié
@@ -74,7 +44,7 @@ export const calculetteApi = {
    * Simulate margin calculation
    */
   async simulate(data: CalculetteFormData): Promise<CalculetteResults> {
-    // TODO: Remplacer par un vrai appel API
+    // TODO: Implement real API call
     // const response = await fetch(`${API_BASE_URL}/calculette/simulate`, {
     //   method: 'POST',
     //   headers: { 'Content-Type': 'application/json' },
@@ -82,24 +52,27 @@ export const calculetteApi = {
     // });
     // return response.json();
 
-    await delay(500); // Simule latence réseau
+    console.warn('calculetteApi.simulate: Using client-side calculation (backend endpoint not implemented)');
 
-    const config = mockConfig;
-    const clientConfig = config.clientConfigs.find(c => c.clientId === data.clientId);
+    // Basic client-side calculation for demonstration
+    const defaultGlobalCosts: GlobalCostsConfig = {
+      chargesPatronales: 65,
+      coutsIndirects: 5000,
+      heuresFacturablesParAn: 1600,
+    };
 
     let coutantMoyenHoraire: number;
 
     if (data.resourceType === 'SALARIE' && data.salaireAnnuel) {
-      coutantMoyenHoraire = calculateCoutantSalarie(data.salaireAnnuel, config.globalCosts);
+      coutantMoyenHoraire = calculateCoutantSalarie(data.salaireAnnuel, defaultGlobalCosts);
     } else if (data.resourceType === 'PIGISTE' && data.tarifHoraire) {
-      // Pour un pigiste, le coûtant = tarif horaire (simplifié)
       coutantMoyenHoraire = data.tarifHoraire;
     } else {
       throw new Error('Données de ressource manquantes');
     }
 
-    const vendantCibleHoraire = clientConfig?.vendantCibleHoraire || 100;
-    const margeCible = clientConfig?.margeCible || 25;
+    const vendantCibleHoraire = 100; // Default value
+    const margeCible = 25; // Default value
 
     const { margeFinale, margeParHeure } = calculateMarge(
       coutantMoyenHoraire,
@@ -123,48 +96,48 @@ export const calculetteApi = {
    * Get configuration (global + clients)
    */
   async getConfig(): Promise<CalculetteConfig> {
-    // TODO: Remplacer par un vrai appel API
+    // TODO: Implement real API call
     // const response = await fetch(`${API_BASE_URL}/calculette/config`);
     // return response.json();
 
-    await delay(300);
-    return mockConfig;
+    console.warn('calculetteApi.getConfig: Backend endpoint not implemented, returning default config');
+    
+    return {
+      globalCosts: {
+        chargesPatronales: 65,
+        coutsIndirects: 5000,
+        heuresFacturablesParAn: 1600,
+      },
+      clientConfigs: [],
+    };
   },
 
   /**
    * Update global costs configuration (CFO only)
    */
   async updateGlobalCosts(globalCosts: GlobalCostsConfig): Promise<void> {
-    // TODO: Remplacer par un vrai appel API
+    // TODO: Implement real API call
     // await fetch(`${API_BASE_URL}/calculette/config/global-costs`, {
     //   method: 'PUT',
     //   headers: { 'Content-Type': 'application/json' },
     //   body: JSON.stringify(globalCosts),
     // });
 
-    await delay(500);
-    mockConfig.globalCosts = globalCosts;
+    console.warn('calculetteApi.updateGlobalCosts: Backend endpoint not implemented');
   },
 
   /**
    * Update client margin configuration (CFO only)
    */
   async updateClientConfig(clientId: string, config: Partial<ClientMarginConfig>): Promise<void> {
-    // TODO: Remplacer par un vrai appel API
+    // TODO: Implement real API call
     // await fetch(`${API_BASE_URL}/calculette/config/clients/${clientId}`, {
     //   method: 'PUT',
     //   headers: { 'Content-Type': 'application/json' },
     //   body: JSON.stringify(config),
     // });
 
-    await delay(500);
-    const index = mockConfig.clientConfigs.findIndex(c => c.clientId === clientId);
-    if (index !== -1) {
-      mockConfig.clientConfigs[index] = {
-        ...mockConfig.clientConfigs[index],
-        ...config,
-      };
-    }
+    console.warn('calculetteApi.updateClientConfig: Backend endpoint not implemented');
   },
 
   /**
@@ -174,10 +147,11 @@ export const calculetteApi = {
     formData: CalculetteFormData,
     results: CalculetteResults
   ): Promise<CalculetteScenario> {
-    // TODO: Remplacer par un vrai appel API
-    await delay(300);
+    // TODO: Implement real API call
 
-    const scenario: CalculetteScenario = {
+    console.warn('calculetteApi.saveScenario: Backend endpoint not implemented');
+
+    return {
       id: `scenario-${Date.now()}`,
       date: new Date().toISOString(),
       resourceType: formData.resourceType,
@@ -188,46 +162,44 @@ export const calculetteApi = {
       formData,
       results,
     };
-
-    mockScenarios.unshift(scenario);
-    return scenario;
   },
 
   /**
    * Get saved scenarios
    */
   async getScenarios(): Promise<CalculetteScenario[]> {
-    // TODO: Remplacer par un vrai appel API
-    await delay(300);
-    return mockScenarios;
+    // TODO: Implement real API call
+
+    console.warn('calculetteApi.getScenarios: Backend endpoint not implemented');
+    return [];
   },
 
   /**
    * Delete a scenario
    */
   async deleteScenario(scenarioId: string): Promise<void> {
-    // TODO: Remplacer par un vrai appel API
-    await delay(300);
-    mockScenarios = mockScenarios.filter(s => s.id !== scenarioId);
+    // TODO: Implement real API call
+
+    console.warn('calculetteApi.deleteScenario: Backend endpoint not implemented');
   },
 
   /**
    * Get clients list (CFO only)
    */
   async getClients(): Promise<ClientMarginConfig[]> {
-    // TODO: Remplacer par un vrai appel API
+    // TODO: Implement real API call
     // const response = await fetch(`${API_BASE_URL}/calculette/config/clients`);
     // return response.json();
 
-    await delay(300);
-    return mockConfig.clientConfigs;
+    console.warn('calculetteApi.getClients: Backend endpoint not implemented');
+    return [];
   },
 
   /**
    * Import data from Excel/CSV file (CFO only)
    */
   async importFile(file: File): Promise<ImportResult> {
-    // TODO: Remplacer par un vrai appel API avec FormData
+    // TODO: Implement real API call with FormData
     // const formData = new FormData();
     // formData.append('file', file);
     // const response = await fetch(`${API_BASE_URL}/calculette/import`, {
@@ -236,33 +208,13 @@ export const calculetteApi = {
     // });
     // return response.json();
 
-    await delay(2000); // Simule le traitement du fichier
-
-    // Mock: simulation d'un import réussi
-    const linesImported = Math.floor(Math.random() * 50) + 10;
-    
-    // Optionnel: simuler une erreur aléatoire
-    if (file.name.includes('error')) {
-      return {
-        success: false,
-        linesImported: 0,
-        errors: ['Format de fichier invalide', 'Colonne "client_id" manquante'],
-        message: 'Erreur lors de l\'import du fichier',
-      };
-    }
-
-    // Simulation: mise à jour de quelques configs clients avec des données aléatoires
-    mockConfig.clientConfigs.forEach((client) => {
-      if (Math.random() > 0.5) {
-        client.margeCible = 20 + Math.random() * 15; // Entre 20 et 35%
-        client.vendantCibleHoraire = 100 + Math.random() * 50; // Entre 100 et 150 $/h
-      }
-    });
+    console.warn('calculetteApi.importFile: Backend endpoint not implemented');
 
     return {
-      success: true,
-      linesImported,
-      message: `${linesImported} lignes importées avec succès`,
+      success: false,
+      linesImported: 0,
+      errors: ['API endpoint not implemented yet'],
+      message: 'Import functionality not available',
     };
   },
 };

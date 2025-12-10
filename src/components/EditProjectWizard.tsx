@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
 import { useAuth0 } from '@auth0/auth0-react';
 import type { BusinessUnitFilter } from '../hooks/useUserBusinessUnitFilter';
-import type { Project, EditProjectProfitabilityPayload } from '../types';
-import { useSubmitProjectEditForValidation, useUpdateProjectNonCritical } from '../hooks/useApi';
+import type { Project } from '../types';
+import { useUpdateProject } from '../hooks/useApi';
 import {
   GeneralInfoSection,
   ClientInfoSection,
@@ -44,11 +44,12 @@ interface SectionErrors {
 const projectToWizardData = (project: Project): ProjectWizardStep1Values => {
   // Convert teamMembers from API format to wizard format
   // API uses simple TeamMember { name, role, costRate, sellRate, grossMargin, netMargin }
-  // Wizard uses ProjectTeamMember { firstName, lastName, role, resourceType, internalCostRate, proposedBillRate, margins }
+  // Wizard uses ProjectTeamMember { email, firstName, lastName, role, resourceType, internalCostRate, proposedBillRate, margins }
   const teamMembers: ProjectTeamMember[] = project.teamMembers?.map((member) => {
     const [firstName = '', lastName = ''] = member.name.split(' ');
     return {
       id: member.id,
+      email: member.email || '', // Add email from API if available
       firstName,
       lastName,
       role: member.role,
@@ -84,6 +85,7 @@ const projectToWizardData = (project: Project): ProjectWizardStep1Values => {
 };
 
 const emptyTeamMember: Omit<ProjectTeamMember, 'id'> = {
+  email: '',
   firstName: '',
   lastName: '',
   role: '',
@@ -154,8 +156,7 @@ export const EditProjectWizard = ({
   const [errors, setErrors] = useState<SectionErrors>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const submitEditForValidation = useSubmitProjectEditForValidation();
-  const updateNonCritical = useUpdateProjectNonCritical();
+  const updateProject = useUpdateProject();
 
   // Update wizard data when project changes
   useEffect(() => {
@@ -191,9 +192,29 @@ export const EditProjectWizard = ({
   const handleTeamMemberChange = (id: string, field: keyof ProjectTeamMember, value: any) => {
     setProjectData((prev) => ({
       ...prev,
-      teamMembers: prev.teamMembers.map((m) =>
-        m.id === id ? { ...m, [field]: value } : m
-      ),
+      teamMembers: prev.teamMembers.map((m) => {
+        if (m.id !== id) return m;
+        
+        const updated = { ...m, [field]: value };
+        
+        // Recalculate margins when cost or sell rate changes
+        if (field === 'internalCostRate' || field === 'proposedBillRate') {
+          const cost = field === 'internalCostRate' ? value : updated.internalCostRate;
+          const sell = field === 'proposedBillRate' ? value : updated.proposedBillRate;
+          
+          if (sell > 0) {
+            updated.grossMarginAmount = sell - cost;
+            updated.grossMarginPercent = ((sell - cost) / sell) * 100;
+            updated.netMarginPercent = updated.grossMarginPercent; // Simplified
+          } else {
+            updated.grossMarginAmount = 0;
+            updated.grossMarginPercent = 0;
+            updated.netMarginPercent = 0;
+          }
+        }
+        
+        return updated;
+      }),
     }));
   };
 
@@ -340,87 +361,39 @@ export const EditProjectWizard = ({
     setIsSubmitting(true);
 
     try {
-      const hasProfitChanges = hasProfitabilityChanges(project, projectData);
+      // Convert team members to API format
+      const teamMembersDto = projectData.teamMembers.map((m) => ({
+        email: m.email,
+        name: `${m.firstName} ${m.lastName}`.trim(),
+        role: m.role,
+        costRate: m.internalCostRate,
+        sellRate: m.proposedBillRate,
+        grossMargin: m.grossMarginPercent,
+        netMargin: m.netMarginPercent,
+      }));
 
-      // 1. Update non-critical fields optimistically
-      const nonCriticalChanges: {
-        name?: string;
-        code?: string;
-        startDate?: string;
-        endDate?: string;
-        notes?: string;
-      } = {};
-
-      if (project.name !== projectData.name) {
-        nonCriticalChanges.name = projectData.name;
-      }
-      if (project.code !== projectData.code) {
-        nonCriticalChanges.code = projectData.code;
-      }
-      if (project.startDate !== projectData.startDate) {
-        nonCriticalChanges.startDate = projectData.startDate;
-      }
-      if (project.endDate !== projectData.endDate) {
-        nonCriticalChanges.endDate = projectData.endDate;
-      }
-
-      if (Object.keys(nonCriticalChanges).length > 0) {
-        await updateNonCritical.mutateAsync({
-          id: project.id,
-          updates: nonCriticalChanges,
-        });
-      }
-
-      // 2. If profitability fields changed, submit for validation
-      if (hasProfitChanges) {
-        const previousValues: EditProjectProfitabilityPayload = {
-          targetMargin: project.targetMargin,
-          minMargin: project.minMargin,
-          teamMembers: project.teamMembers?.map((m) => ({
-            id: m.id,
-            name: m.name,
-            role: m.role,
-            costRate: m.costRate,
-            sellRate: m.sellRate,
-            grossMargin: m.grossMargin,
-            netMargin: m.netMargin,
-          })) || [],
-        };
-
-        const newValues: EditProjectProfitabilityPayload = {
+      // Update the project with all changes
+      await updateProject.mutateAsync({
+        id: project.id.toString(),
+        updates: {
+          name: projectData.name,
+          code: projectData.code,
+          type: projectData.type,
+          startDate: projectData.startDate,
+          endDate: projectData.endDate,
           targetMargin: projectData.margins.targetMarginPercent,
           minMargin: projectData.margins.minMarginPercent,
-          teamMembers: projectData.teamMembers.map((m) => ({
-            id: m.id,
-            name: `${m.firstName} ${m.lastName}`,
-            role: m.role,
-            costRate: m.internalCostRate,
-            sellRate: m.proposedBillRate,
-            grossMargin: m.grossMarginAmount,
-            netMargin: m.netMarginPercent,
-          })),
-        };
+          teamMembers: teamMembersDto,
+        },
+      });
 
-        await submitEditForValidation.mutateAsync({
-          projectId: project.id,
-          previousValues,
-          newValues,
-          userEmail: user?.email || 'unknown@astek.com',
-          approverEmail: 'cfo@astek.com',
-        });
-
-        alert(
-          'Les modifications de rentabilité ont été soumises pour validation au CFO.\n' +
-          'Les autres modifications (nom, dates) ont été appliquées immédiatement.'
-        );
-      } else {
-        alert('Les modifications ont été enregistrées avec succès.');
-      }
-
+      alert('Les modifications ont été enregistrées avec succès.');
       onSuccess();
       onClose();
-    } catch (error) {
-      alert('Une erreur est survenue lors de la soumission des modifications.');
+    } catch (error: any) {
+      console.error('Error updating project:', error);
+      const errorMessage = error?.message || 'Une erreur est survenue lors de la mise à jour du projet.';
+      alert(errorMessage);
     } finally {
       setIsSubmitting(false);
     }

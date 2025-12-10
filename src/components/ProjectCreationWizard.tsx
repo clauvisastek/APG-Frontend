@@ -18,6 +18,7 @@ export type ResourceType = "Employé" | "Pigiste";
 
 export interface ProjectTeamMember {
   id: string;
+  email: string;
   firstName: string;
   lastName: string;
   role: string;
@@ -106,6 +107,7 @@ const initialProjectData: ProjectWizardStep1Values = {
 };
 
 const emptyTeamMember: Omit<ProjectTeamMember, 'id'> = {
+  email: '',
   firstName: '',
   lastName: '',
   role: '',
@@ -201,6 +203,13 @@ export const ProjectCreationWizard = ({
     const newErrors: SectionErrors = {};
 
     projectData.teamMembers.forEach((member, index) => {
+      // Email validation
+      if (!member.email.trim()) {
+        newErrors[`team_${index}_email`] = 'L\'email est obligatoire';
+      } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(member.email)) {
+        newErrors[`team_${index}_email`] = 'Format d\'email invalide';
+      }
+      
       if (!member.firstName.trim()) {
         newErrors[`team_${index}_firstName`] = 'Le prénom est obligatoire';
       }

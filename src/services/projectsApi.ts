@@ -74,6 +74,7 @@ export interface ProjectUpdateDto {
 
 export interface TeamMemberDto {
   id: string;
+  email?: string; // Email for resource uniqueness
   name: string;
   role: string;
   costRate: number;
