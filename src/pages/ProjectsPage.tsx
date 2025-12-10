@@ -498,7 +498,7 @@ export const ProjectsPage = () => {
       {/* Project Details Modal */}
       {selectedProject && (
         <ProjectDetailsModal
-          project={selectedProject}
+          project={convertDtoToProject(selectedProject)}
           isOpen={isDetailsOpen}
           onClose={handleCloseDetails}
         />
