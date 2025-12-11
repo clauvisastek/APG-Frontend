@@ -99,7 +99,7 @@ export const ProjectsPage = () => {
 
   // Map ProjectDto to Project for compatibility
   const mapProjectDtoToProject = (dto: ProjectDto): Project => {
-    return {
+    const mapped: Project = {
       id: dto.id.toString(),
       name: dto.name,
       code: dto.code,

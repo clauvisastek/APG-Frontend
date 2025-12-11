@@ -65,6 +65,8 @@ export interface CreateResourceInput {
   dailySellRate: number;
   status: ResourceStatus;
   hireDate: string;
+  currentClient?: string;
+  currentMission?: string;
   manager?: string;
   email?: string;
   phone?: string;
