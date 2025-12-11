@@ -733,9 +733,35 @@ export const TeamMembersSection = ({
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingMember, setEditingMember] = useState<{ member: ProjectTeamMember; index: number } | null>(null);
   
-  // PAS de synchronisation automatique - localMembers est indépendant
-  // On affiche localMembers dans l'UI, mais on notifie le parent des changements
+  // State local pour stocker les membres indépendamment
   const [localMembers, setLocalMembers] = useState<ProjectTeamMember[]>([]);
+
+  // Synchroniser le state local avec les props UNIQUEMENT au montage ou si teamMembers change de longueur
+  useEffect(() => {
+    console.log('🔄 TeamMembersSection - Syncing localMembers:', {
+      teamMembersLength: teamMembers.length,
+      teamMembers: teamMembers,
+    });
+    
+    if (teamMembers.length > 0) {
+      // Créer une copie profonde complètement indépendante
+      const membersCopy = teamMembers.map(m => ({
+        id: m.id,
+        email: m.email,
+        firstName: m.firstName,
+        lastName: m.lastName,
+        role: m.role,
+        resourceType: m.resourceType,
+        internalCostRate: m.internalCostRate,
+        proposedBillRate: m.proposedBillRate,
+        grossMarginAmount: m.grossMarginAmount,
+        grossMarginPercent: m.grossMarginPercent,
+        netMarginPercent: m.netMarginPercent,
+      }));
+      setLocalMembers(membersCopy);
+      console.log('✅ LocalMembers synced:', membersCopy.length, 'members');
+    }
+  }, [teamMembers.length]); // Se déclenche uniquement si le nombre de membres change
 
   // Vérifier si des membres ont des marges en dessous des objectifs
   const membersWithLowMargins = localMembers.filter(

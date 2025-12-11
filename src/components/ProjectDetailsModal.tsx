@@ -36,6 +36,14 @@ export const ProjectDetailsModal = ({ project, isOpen, onClose }: ProjectDetails
     : project.targetMargin;
   const teamMembers: TeamMember[] = project.teamMembers || [];
 
+  // Debug: Log team members
+  console.log('🔍 ProjectDetailsModal - Project data:', {
+    projectName: project.name,
+    teamMembersCount: teamMembers.length,
+    teamMembers: teamMembers,
+    rawTeamMembers: project.teamMembers,
+  });
+
   // Prepare team members data for chart
   const teamMembersData = teamMembers.map(member => ({
     name: member.name,

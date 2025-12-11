@@ -90,6 +90,7 @@ export interface CreateClientInput {
 // Project Types
 export interface TeamMember {
   id: string;
+  email?: string;
   name: string;
   role: string;
   costRate: number;

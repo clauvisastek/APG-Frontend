@@ -43,14 +43,20 @@ interface SectionErrors {
  * Convert Project to wizard format
  */
 const projectToWizardData = (project: Project): ProjectWizardStep1Values => {
+  console.log('🔄 projectToWizardData - Converting project:', {
+    projectName: project.name,
+    teamMembersRaw: project.teamMembers,
+    teamMembersCount: project.teamMembers?.length || 0,
+  });
+
   // Convert teamMembers from API format to wizard format
   // API uses simple TeamMember { name, role, costRate, sellRate, grossMargin, netMargin }
   // Wizard uses ProjectTeamMember { email, firstName, lastName, role, resourceType, internalCostRate, proposedBillRate, margins }
   const teamMembers: ProjectTeamMember[] = project.teamMembers?.map((member) => {
     const [firstName = '', lastName = ''] = member.name.split(' ');
-    return {
-      id: member.id,
-      email: member.email || '', // Add email from API if available
+    const converted = {
+      id: member.id || `member-${Date.now()}-${Math.random()}`,
+      email: member.email || '',
       firstName,
       lastName,
       role: member.role,
@@ -61,7 +67,11 @@ const projectToWizardData = (project: Project): ProjectWizardStep1Values => {
       grossMarginPercent: member.grossMargin,
       netMarginPercent: member.netMargin,
     };
+    console.log('  ➡️ Converted member:', { original: member, converted });
+    return converted;
   }) || [];
+
+  console.log('✅ Final teamMembers:', teamMembers);
 
   const margins: ProjectMargins = {
     targetMarginPercent: project.targetMargin,
@@ -506,15 +516,21 @@ export const EditProjectWizard = ({
                 )}
 
                 {currentSection === 'team' && (
-                  <TeamMembersSection
-                    teamMembers={projectData.teamMembers}
-                    errors={errors}
-                    onAdd={handleAddTeamMember}
-                    onRemove={handleRemoveTeamMember}
-                    onChange={handleTeamMemberChange}
-                    onAddMember={handleAddMemberComplete}
-                    onUpdateMember={handleUpdateMemberComplete}
-                  />
+                  <>
+                    {console.log('📊 Rendering TeamMembersSection with:', {
+                      teamMembersCount: projectData.teamMembers.length,
+                      teamMembers: projectData.teamMembers,
+                    })}
+                    <TeamMembersSection
+                      teamMembers={projectData.teamMembers}
+                      errors={errors}
+                      onAdd={handleAddTeamMember}
+                      onRemove={handleRemoveTeamMember}
+                      onChange={handleTeamMemberChange}
+                      onAddMember={handleAddMemberComplete}
+                      onUpdateMember={handleUpdateMemberComplete}
+                    />
+                  </>
                 )}
               </div>
             </div>

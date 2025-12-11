@@ -145,6 +145,15 @@ export const ProjectsPage = () => {
       createdAt: dto.createdAt,
       updatedAt: dto.updatedAt || dto.createdAt,
     };
+    
+    console.log('📋 mapProjectDtoToProject:', {
+      projectName: dto.name,
+      dtoTeamMembers: dto.teamMembers,
+      mappedTeamMembers: mapped.teamMembers,
+      teamMembersLength: mapped.teamMembers?.length || 0,
+    });
+    
+    return mapped;
   };
 
   // Handlers for details modal
