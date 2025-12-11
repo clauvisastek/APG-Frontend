@@ -1,10 +1,10 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { clientApi, projectApi, projectChangeRequestApi } from '../services/api';
+import { clientApi, projectApi } from '../services/api';
 import { businessUnitsApi, type BusinessUnitCreateUpdateDto } from '../services/businessUnitsApi';
 import { countriesApi } from '../services/countriesApi';
 import { currenciesApi } from '../services/currenciesApi';
 import { sectorsApi } from '../services/sectorsApi';
-import type { CreateClientInput, CreateProjectInput, EditProjectProfitabilityPayload } from '../types';
+import type { CreateClientInput, CreateProjectInput } from '../types';
 
 // Client hooks
 export const useClients = (buId?: number) => {
@@ -150,52 +150,7 @@ export const useDeleteBusinessUnit = () => {
   });
 };
 
-// Project Change Request hooks
-export const useSubmitProjectEditForValidation = () => {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: ({
-      projectId,
-      previousValues,
-      newValues,
-      userEmail,
-      approverEmail,
-    }: {
-      projectId: string;
-      previousValues: EditProjectProfitabilityPayload;
-      newValues: EditProjectProfitabilityPayload;
-      userEmail: string;
-      approverEmail: string;
-    }) => projectChangeRequestApi.submitEditForValidation(projectId, previousValues, newValues, userEmail, approverEmail),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['projectChangeRequests'] });
-    },
-  });
-};
-
-export const useUpdateProjectNonCritical = () => {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: ({
-      id,
-      updates,
-    }: {
-      id: string;
-      updates: {
-        name?: string;
-        code?: string;
-        startDate?: string;
-        endDate?: string;
-        notes?: string;
-      };
-    }) => projectApi.updateNonCritical(id, updates),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['projects'] });
-    },
-  });
-};
+// Project mutation hooks
 
 export const useUpdateProject = () => {
   const queryClient = useQueryClient();
@@ -207,13 +162,20 @@ export const useUpdateProject = () => {
     }: {
       id: string;
       updates: {
-        name?: string;
-        code?: string;
-        type?: string;
-        startDate?: string;
-        endDate?: string;
-        targetMargin?: number;
-        minMargin?: number;
+        name: string;
+        code: string;
+        clientId: number;
+        businessUnitId: number;
+        type: string;
+        responsibleName?: string;
+        currency: string;
+        startDate: string;
+        endDate: string;
+        targetMargin: number;
+        minMargin: number;
+        status: string;
+        notes?: string;
+        ytdRevenue?: number;
         teamMembers?: Array<{
           email: string;
           name: string;
@@ -231,17 +193,4 @@ export const useUpdateProject = () => {
   });
 };
 
-export const useProjectChangeRequests = () => {
-  return useQuery({
-    queryKey: ['projectChangeRequests'],
-    queryFn: projectChangeRequestApi.getAll,
-  });
-};
 
-export const useProjectChangeRequestsByProject = (projectId: string) => {
-  return useQuery({
-    queryKey: ['projectChangeRequests', projectId],
-    queryFn: () => projectChangeRequestApi.getByProjectId(projectId),
-    enabled: !!projectId,
-  });
-};

@@ -298,6 +298,117 @@
   margin: 0 0 24px 0;
 }
 
+/* Team Grid Table */
+.wizard-team-grid {
+  width: 100%;
+  border-collapse: collapse;
+  background: white;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  font-size: 14px;
+}
+
+.wizard-team-grid thead {
+  background: #f9fafb;
+  border-bottom: 2px solid #e5e7eb;
+}
+
+.wizard-team-grid th {
+  padding: 12px 16px;
+  text-align: left;
+  font-size: 12px;
+  font-weight: 600;
+  color: #374151;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  white-space: nowrap;
+}
+
+.wizard-team-grid tbody tr {
+  border-bottom: 1px solid #e5e7eb;
+  transition: background-color 0.15s;
+}
+
+.wizard-team-grid tbody tr:hover {
+  background: #f9fafb;
+}
+
+.wizard-team-grid tbody tr:last-child {
+  border-bottom: none;
+}
+
+.wizard-team-grid td {
+  padding: 14px 16px;
+  font-size: 14px;
+  color: #1f2937;
+}
+
+/* Modal Form Styles */
+.wizard-modal-form {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  max-width: 600px;
+  width: 100%;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  margin: auto;
+  animation: wizardSlideIn 0.3s ease-out;
+}
+
+.wizard-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 24px;
+  border-bottom: 1px solid #e5e7eb;
+  background: white;
+  border-radius: 12px 12px 0 0;
+}
+
+.wizard-modal-body {
+  flex: 1;
+  overflow-y: auto;
+}
+
+.wizard-modal-footer {
+  border-top: 1px solid #e5e7eb;
+  background: #f9fafb;
+  border-radius: 0 0 12px 12px;
+}
+
+/* Team List Container - scrollable */
+.wizard-team-list-container {
+  max-height: 600px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  border: 1px solid var(--astek-border);
+  border-radius: 12px;
+  background: #f9fafb;
+  padding: 16px;
+}
+
+/* Scrollbar styling */
+.wizard-team-list-container::-webkit-scrollbar {
+  width: 8px;
+}
+
+.wizard-team-list-container::-webkit-scrollbar-track {
+  background: #f1f5f9;
+  border-radius: 4px;
+}
+
+.wizard-team-list-container::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 4px;
+}
+
+.wizard-team-list-container::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
 /* Team List */
 .wizard-team-list {
   display: flex;

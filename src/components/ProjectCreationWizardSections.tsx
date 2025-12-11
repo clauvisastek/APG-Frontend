@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { toast } from 'react-toastify';
 import { useClients } from '../hooks/useApi';
 import { resourcesApi } from '../services/resourcesApi';
 import type { BusinessUnitFilter } from '../hooks/useUserBusinessUnitFilter';
@@ -412,7 +413,7 @@ export const MarginsSection = ({ data, errors, onChange, readOnly = true, client
 };
 
 // ============================================================================
-// 4. TEAM MEMBERS SECTION
+// 4. TEAM MEMBERS SECTION - GRID WITH MODAL
 // ============================================================================
 
 interface TeamMembersSectionProps {
@@ -421,9 +422,302 @@ interface TeamMembersSectionProps {
   onAdd: () => void;
   onRemove: (id: string) => void;
   onChange: (id: string, field: keyof ProjectTeamMember, value: any) => void;
+  onAddMember?: (member: ProjectTeamMember) => void; // Ajouter un membre complet
+  onUpdateMember?: (member: ProjectTeamMember) => void; // Mettre à jour un membre complet
   targetMargin?: number;
   minMargin?: number;
 }
+
+// Modal pour ajouter/éditer un membre
+interface TeamMemberModalProps {
+  isOpen: boolean;
+  member: ProjectTeamMember | null;
+  isEditMode: boolean;
+  onClose: () => void;
+  onSave: (member: ProjectTeamMember) => void;
+  errors: SectionErrors;
+  memberIndex: number;
+}
+
+const TeamMemberModal = ({ isOpen, member, isEditMode, onClose, onSave, errors, memberIndex }: TeamMemberModalProps) => {
+  const [formData, setFormData] = useState<ProjectTeamMember | null>(member);
+  const [existingResourceFound, setExistingResourceFound] = useState(false);
+
+  // Reset form when member changes or modal opens
+  useEffect(() => {
+    if (isOpen && member) {
+      setFormData(member);
+      setExistingResourceFound(false);
+    }
+  }, [isOpen, member]);
+
+  if (!isOpen || !formData) return null;
+
+  const checkResourceExists = async (email: string) => {
+    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      setExistingResourceFound(false);
+      return;
+    }
+
+    try {
+      const existingResource = await resourcesApi.getByEmail(email);
+      
+      if (existingResource) {
+        setExistingResourceFound(true);
+        // Auto-fill fields with existing resource data
+        setFormData(prev => prev ? {
+          ...prev,
+          firstName: existingResource.firstName || '',
+          lastName: existingResource.lastName || '',
+          role: existingResource.jobType || '',
+          internalCostRate: existingResource.dailyCostRate || 0,
+          proposedBillRate: existingResource.dailySellRate || 0,
+        } : null);
+        
+        toast.info('Ressource existante trouvée - Informations pré-remplies');
+      } else {
+        setExistingResourceFound(false);
+      }
+    } catch (error) {
+      console.error('Error checking resource:', error);
+      setExistingResourceFound(false);
+    }
+  };
+
+  const handleChange = (field: keyof ProjectTeamMember, value: any) => {
+    setFormData(prev => {
+      if (!prev) return null;
+      
+      const updated = { ...prev, [field]: value };
+      
+      // Recalculate margins when rates change
+      if (field === 'internalCostRate' || field === 'proposedBillRate') {
+        const cost = field === 'internalCostRate' ? value : updated.internalCostRate;
+        const sell = field === 'proposedBillRate' ? value : updated.proposedBillRate;
+        
+        if (sell > 0) {
+          updated.grossMarginAmount = sell - cost;
+          updated.grossMarginPercent = ((sell - cost) / sell) * 100;
+          updated.netMarginPercent = updated.grossMarginPercent;
+        }
+      }
+      
+      return updated;
+    });
+  };
+
+  // Validation du formulaire
+  const isFormValid = formData && 
+    formData.email && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email) &&
+    formData.firstName.trim() !== '' &&
+    formData.lastName.trim() !== '' &&
+    formData.role.trim() !== '' &&
+    formData.internalCostRate > 0 &&
+    formData.proposedBillRate > 0;
+
+  const handleSave = () => {
+    if (formData && isFormValid) {
+      onSave(formData);
+      toast.success(isEditMode ? 'Membre mis à jour' : 'Membre ajouté avec succès');
+      onClose();
+    }
+  };
+
+  return (
+    <div className="wizard-overlay" onClick={onClose}>
+      <div className="wizard-modal-form" onClick={(e) => e.stopPropagation()} style={{ maxWidth: '600px' }}>
+        <div className="wizard-modal-header">
+          <h3 style={{ margin: 0, fontSize: '18px', fontWeight: 600 }}>
+            {isEditMode ? '✏️ Modifier le membre' : '➕ Ajouter un nouveau membre'}
+          </h3>
+          <button
+            type="button"
+            className="wizard-close-btn"
+            onClick={onClose}
+            style={{
+              background: 'none',
+              border: 'none',
+              fontSize: '24px',
+              cursor: 'pointer',
+              color: '#6b7280',
+              padding: 0,
+              width: '32px',
+              height: '32px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              borderRadius: '4px',
+            }}
+          >
+            ×
+          </button>
+        </div>
+
+        <div className="wizard-modal-body" style={{ padding: '24px', maxHeight: '70vh', overflowY: 'auto' }}>
+          {/* Email */}
+          <div className="astek-form-group">
+            <label className="astek-label">Email <span className="required-star">*</span></label>
+            <input
+              type="email"
+              className={`astek-input ${errors[`team_${memberIndex}_email`] ? 'is-invalid' : ''}`}
+              value={formData.email}
+              onChange={(e) => handleChange('email', e.target.value)}
+              onBlur={(e) => checkResourceExists(e.target.value)}
+              placeholder="prenom.nom@astek.ca"
+            />
+            {errors[`team_${memberIndex}_email`] && (
+              <div className="astek-error-message">{errors[`team_${memberIndex}_email`]}</div>
+            )}
+            {existingResourceFound && (
+              <div style={{ marginTop: '8px', padding: '8px', background: '#DBEAFE', border: '1px solid #3B82F6', borderRadius: '4px', fontSize: '13px', color: '#1E40AF' }}>
+                ℹ️ Ressource existante - Informations pré-remplies
+              </div>
+            )}
+          </div>
+
+          {/* Prénom & Nom */}
+          <div className="astek-row">
+            <div className="astek-col-2">
+              <div className="astek-form-group">
+                <label className="astek-label">Prénom <span className="required-star">*</span></label>
+                <input
+                  type="text"
+                  className={`astek-input ${errors[`team_${memberIndex}_firstName`] ? 'is-invalid' : ''}`}
+                  value={formData.firstName}
+                  onChange={(e) => handleChange('firstName', e.target.value)}
+                  placeholder="Prénom"
+                />
+                {errors[`team_${memberIndex}_firstName`] && (
+                  <div className="astek-error-message">{errors[`team_${memberIndex}_firstName`]}</div>
+                )}
+              </div>
+            </div>
+            <div className="astek-col-2">
+              <div className="astek-form-group">
+                <label className="astek-label">Nom <span className="required-star">*</span></label>
+                <input
+                  type="text"
+                  className={`astek-input ${errors[`team_${memberIndex}_lastName`] ? 'is-invalid' : ''}`}
+                  value={formData.lastName}
+                  onChange={(e) => handleChange('lastName', e.target.value)}
+                  placeholder="Nom"
+                />
+                {errors[`team_${memberIndex}_lastName`] && (
+                  <div className="astek-error-message">{errors[`team_${memberIndex}_lastName`]}</div>
+                )}
+              </div>
+            </div>
+          </div>
+
+          {/* Rôle & Type */}
+          <div className="astek-row">
+            <div className="astek-col-2">
+              <div className="astek-form-group">
+                <label className="astek-label">Rôle <span className="required-star">*</span></label>
+                <input
+                  type="text"
+                  className={`astek-input ${errors[`team_${memberIndex}_role`] ? 'is-invalid' : ''}`}
+                  value={formData.role}
+                  onChange={(e) => handleChange('role', e.target.value)}
+                  placeholder="Ex: Développeur, PO"
+                />
+                {errors[`team_${memberIndex}_role`] && (
+                  <div className="astek-error-message">{errors[`team_${memberIndex}_role`]}</div>
+                )}
+              </div>
+            </div>
+            <div className="astek-col-2">
+              <div className="astek-form-group">
+                <label className="astek-label">Type <span className="required-star">*</span></label>
+                <select
+                  className="astek-select"
+                  value={formData.resourceType}
+                  onChange={(e) => handleChange('resourceType', e.target.value as ResourceType)}
+                >
+                  <option value="Employé">Employé</option>
+                  <option value="Pigiste">Pigiste</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          {/* Taux */}
+          <div className="astek-row">
+            <div className="astek-col-2">
+              <div className="astek-form-group">
+                <label className="astek-label">Taux coûtant ($/h) <span className="required-star">*</span></label>
+                <input
+                  type="number"
+                  className={`astek-input ${errors[`team_${memberIndex}_cost`] ? 'is-invalid' : ''}`}
+                  value={formData.internalCostRate}
+                  onChange={(e) => handleChange('internalCostRate', parseFloat(e.target.value) || 0)}
+                  min="0"
+                  step="0.01"
+                />
+                {errors[`team_${memberIndex}_cost`] && (
+                  <div className="astek-error-message">{errors[`team_${memberIndex}_cost`]}</div>
+                )}
+              </div>
+            </div>
+            <div className="astek-col-2">
+              <div className="astek-form-group">
+                <label className="astek-label">Taux vendant ($/h) <span className="required-star">*</span></label>
+                <input
+                  type="number"
+                  className={`astek-input ${errors[`team_${memberIndex}_bill`] ? 'is-invalid' : ''}`}
+                  value={formData.proposedBillRate}
+                  onChange={(e) => handleChange('proposedBillRate', parseFloat(e.target.value) || 0)}
+                  min="0"
+                  step="0.01"
+                />
+                {errors[`team_${memberIndex}_bill`] && (
+                  <div className="astek-error-message">{errors[`team_${memberIndex}_bill`]}</div>
+                )}
+              </div>
+            </div>
+          </div>
+
+          {/* Marges calculées */}
+          <div style={{ marginTop: '20px', padding: '16px', background: '#f9fafb', borderRadius: '8px', border: '1px solid #e5e7eb' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-around', gap: '20px' }}>
+              <div style={{ textAlign: 'center' }}>
+                <div style={{ fontSize: '12px', color: '#6b7280', marginBottom: '4px' }}>Marge brute</div>
+                <div style={{ fontSize: '16px', fontWeight: 600, color: '#00A859' }}>
+                  {formData.grossMarginAmount.toFixed(2)} $ ({formData.grossMarginPercent.toFixed(1)}%)
+                </div>
+              </div>
+              <div style={{ textAlign: 'center' }}>
+                <div style={{ fontSize: '12px', color: '#6b7280', marginBottom: '4px' }}>Marge nette</div>
+                <div style={{ fontSize: '16px', fontWeight: 600, color: '#00A859' }}>
+                  {formData.netMarginPercent.toFixed(1)}%
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="wizard-modal-footer" style={{ padding: '16px 24px', borderTop: '1px solid #e5e7eb', display: 'flex', gap: '12px', justifyContent: 'flex-end' }}>
+          <button
+            type="button"
+            className="astek-btn astek-btn-secondary"
+            onClick={onClose}
+          >
+            Annuler
+          </button>
+          <button
+            type="button"
+            className="astek-btn astek-btn-primary"
+            onClick={handleSave}
+            disabled={!isFormValid}
+            style={{ opacity: isFormValid ? 1 : 0.5, cursor: isFormValid ? 'pointer' : 'not-allowed' }}
+          >
+            {isEditMode ? 'Mettre à jour' : 'Ajouter'}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
 
 export const TeamMembersSection = ({
   teamMembers,
@@ -431,84 +725,217 @@ export const TeamMembersSection = ({
   onAdd,
   onRemove,
   onChange,
+  onAddMember,
+  onUpdateMember,
   targetMargin = 0,
   minMargin = 0,
 }: TeamMembersSectionProps) => {
-  // State pour gérer les ressources existantes trouvées par email
-  const [existingResourcesNotification, setExistingResourcesNotification] = useState<{[email: string]: boolean}>({});
-
-  // Fonction pour vérifier si une ressource existe déjà
-  const checkResourceExists = async (email: string, memberId: string) => {
-    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      return; // Skip if email is empty or invalid
-    }
-
-    try {
-      const existingResource = await resourcesApi.getByEmail(email);
-      
-      if (existingResource) {
-        // Ressource existe - pré-remplir les champs et notifier l'utilisateur
-        setExistingResourcesNotification(prev => ({ ...prev, [email]: true }));
-        
-        // Auto-fill fields from existing resource
-        const member = teamMembers.find(m => m.id === memberId);
-        if (member) {
-          // Only fill if fields are empty
-          if (!member.firstName) onChange(memberId, 'firstName', existingResource.firstName || '');
-          if (!member.lastName) onChange(memberId, 'lastName', existingResource.lastName || '');
-          if (!member.role) onChange(memberId, 'role', existingResource.jobType || '');
-          if (member.internalCostRate === 0) onChange(memberId, 'internalCostRate', existingResource.dailyCostRate || 0);
-          if (member.proposedBillRate === 0) onChange(memberId, 'proposedBillRate', existingResource.dailySellRate || 0);
-        }
-        
-        // Auto-clear notification after 5 seconds
-        setTimeout(() => {
-          setExistingResourcesNotification(prev => {
-            const newState = { ...prev };
-            delete newState[email];
-            return newState;
-          });
-        }, 5000);
-      } else {
-        // Clear notification if resource doesn't exist
-        setExistingResourcesNotification(prev => {
-          const newState = { ...prev };
-          delete newState[email];
-          return newState;
-        });
-      }
-    } catch (error) {
-      console.error('Error checking resource existence:', error);
-    }
-  };
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editingMember, setEditingMember] = useState<{ member: ProjectTeamMember; index: number } | null>(null);
+  
+  // PAS de synchronisation automatique - localMembers est indépendant
+  // On affiche localMembers dans l'UI, mais on notifie le parent des changements
+  const [localMembers, setLocalMembers] = useState<ProjectTeamMember[]>([]);
 
   // Vérifier si des membres ont des marges en dessous des objectifs
-  const membersWithLowMargins = teamMembers.filter(
+  const membersWithLowMargins = localMembers.filter(
     m => m.grossMarginPercent < minMargin || m.netMarginPercent < minMargin
   );
   const hasMarginIssues = membersWithLowMargins.length > 0;
+
+  const handleAddClick = () => {
+    // Créer un membre temporaire vide sans l'ajouter à la liste
+    const tempMember: ProjectTeamMember = {
+      id: `temp-${Date.now()}`,
+      email: '',
+      firstName: '',
+      lastName: '',
+      role: '',
+      resourceType: 'Employé',
+      internalCostRate: 0,
+      proposedBillRate: 0,
+      grossMarginAmount: 0,
+      grossMarginPercent: 0,
+      netMarginPercent: 0,
+    };
+    setEditingMember({ member: tempMember, index: -1 }); // index -1 = nouveau membre
+    setIsModalOpen(true);
+  };
+
+  const handleEditClick = (member: ProjectTeamMember, index: number) => {
+    // Extraire le membre du state local pour l'éditer
+    const memberToEdit = localMembers[index];
+    if (memberToEdit) {
+      // Créer une copie pour l'édition
+      const memberCopy: ProjectTeamMember = {
+        id: memberToEdit.id,
+        email: memberToEdit.email,
+        firstName: memberToEdit.firstName,
+        lastName: memberToEdit.lastName,
+        role: memberToEdit.role,
+        resourceType: memberToEdit.resourceType,
+        internalCostRate: memberToEdit.internalCostRate,
+        proposedBillRate: memberToEdit.proposedBillRate,
+        grossMarginAmount: memberToEdit.grossMarginAmount,
+        grossMarginPercent: memberToEdit.grossMarginPercent,
+        netMarginPercent: memberToEdit.netMarginPercent,
+      };
+      setEditingMember({ member: memberCopy, index });
+      setIsModalOpen(true);
+    }
+  };
+
+  const handleModalSave = (updatedMember: ProjectTeamMember) => {
+    console.log('🔵 handleModalSave called:', {
+      isNewMember: editingMember?.index === -1,
+      editingIndex: editingMember?.index,
+      updatedMemberEmail: updatedMember.email,
+      updatedMemberRate: updatedMember.internalCostRate,
+    });
+
+    if (editingMember && editingMember.index === -1) {
+      // Nouveau membre - créer et ajouter au state local ET parent
+      const newMember: ProjectTeamMember = {
+        id: `member-${Date.now()}-${Math.random()}`,
+        email: updatedMember.email,
+        firstName: updatedMember.firstName,
+        lastName: updatedMember.lastName,
+        role: updatedMember.role,
+        resourceType: updatedMember.resourceType,
+        internalCostRate: updatedMember.internalCostRate,
+        proposedBillRate: updatedMember.proposedBillRate,
+        grossMarginAmount: updatedMember.grossMarginAmount,
+        grossMarginPercent: updatedMember.grossMarginPercent,
+        netMarginPercent: updatedMember.netMarginPercent,
+      };
+      
+      console.log('➕ Adding new member:', newMember.email);
+      
+      // Mettre à jour le state local
+      setLocalMembers(prev => {
+        console.log('📊 LocalMembers before add:', prev.map(m => ({ email: m.email, rate: m.internalCostRate })));
+        const newList = [...prev, newMember];
+        console.log('📊 LocalMembers after add:', newList.map(m => ({ email: m.email, rate: m.internalCostRate })));
+        return newList;
+      });
+      
+      // Notifier le parent
+      if (onAddMember) {
+        onAddMember(newMember);
+      }
+    } else if (editingMember) {
+      // Mise à jour d'un membre existant
+      const memberToUpdate: ProjectTeamMember = {
+        id: updatedMember.id,
+        email: updatedMember.email,
+        firstName: updatedMember.firstName,
+        lastName: updatedMember.lastName,
+        role: updatedMember.role,
+        resourceType: updatedMember.resourceType,
+        internalCostRate: updatedMember.internalCostRate,
+        proposedBillRate: updatedMember.proposedBillRate,
+        grossMarginAmount: updatedMember.grossMarginAmount,
+        grossMarginPercent: updatedMember.grossMarginPercent,
+        netMarginPercent: updatedMember.netMarginPercent,
+      };
+      
+      console.log('✏️ Updating member at index:', editingMember.index, {
+        id: memberToUpdate.id,
+        email: memberToUpdate.email,
+        newRate: memberToUpdate.internalCostRate,
+      });
+      
+      // Mettre à jour le state local en remplaçant le membre à l'index donné
+      setLocalMembers(prev => {
+        console.log('📊 LocalMembers before update:', prev.map((m, idx) => ({ 
+          index: idx, 
+          id: m.id, 
+          email: m.email, 
+          rate: m.internalCostRate 
+        })));
+        
+        const newList = [...prev];
+        console.log('🎯 Updating index:', editingMember.index, 'with rate:', memberToUpdate.internalCostRate);
+        newList[editingMember.index] = memberToUpdate;
+        
+        console.log('📊 LocalMembers after update:', newList.map((m, idx) => ({ 
+          index: idx, 
+          id: m.id, 
+          email: m.email, 
+          rate: m.internalCostRate 
+        })));
+        
+        return newList;
+      });
+      
+      // Notifier le parent
+      if (onUpdateMember) {
+        onUpdateMember(memberToUpdate);
+      }
+    }
+  };
+
+  const handleModalClose = () => {
+    setIsModalOpen(false);
+    setEditingMember(null);
+  };
+
+  const handleRemoveClick = (memberId: string) => {
+    // Supprimer du state local
+    setLocalMembers(prev => {
+      const filtered = prev.filter(m => m.id !== memberId);
+      // Notifier le parent avec la nouvelle liste complète
+      setTimeout(() => {
+        filtered.forEach(m => {
+          if (onUpdateMember) onUpdateMember(m);
+        });
+      }, 0);
+      return filtered;
+    });
+    
+    // Notifier le parent de la suppression
+    onRemove(memberId);
+  };
 
   return (
     <div className="wizard-section">
       <div className="wizard-section-header">
         <div>
-          <h3 className="wizard-section-title">Membres de l'équipe</h3>
+          <h3 className="wizard-section-title">
+            Membres de l'équipe
+            {localMembers.length > 0 && (
+              <span style={{ 
+                marginLeft: '12px',
+                fontSize: '14px',
+                fontWeight: 600,
+                color: '#00A859',
+                background: '#D1FAE5',
+                padding: '4px 12px',
+                borderRadius: '20px'
+              }}>
+                {localMembers.length} membre{localMembers.length > 1 ? 's' : ''}
+              </span>
+            )}
+          </h3>
           <p className="wizard-section-description">
-            Ajoutez les membres de l'équipe qui travailleront sur ce projet. 
-            Les marges seront calculées automatiquement.
+            Gérez les membres de l'équipe. Les marges sont calculées automatiquement.
           </p>
         </div>
+      </div>
+
+      {/* Bouton d'ajout */}
+      <div style={{ marginBottom: '20px' }}>
         <button
           type="button"
-          className="astek-btn astek-btn-secondary"
-          onClick={onAdd}
-        >
-          + Ajouter un membre
+          className="astek-btn astek-btn-primary"
+          onClick={handleAddClick}
+          style={{ width: '100%', fontSize: '15px', padding: '12px' }}>
+          ➕ Ajouter un nouveau membre
         </button>
       </div>
 
-      {/* Avertissement si les marges ne correspondent pas aux objectifs */}
-      {hasMarginIssues && teamMembers.length > 0 && (
+      {/* Avertissement marges */}
+      {hasMarginIssues && localMembers.length > 0 && (
         <div style={{
           background: '#FEF3C7',
           border: '1px solid #F59E0B',
@@ -523,230 +950,147 @@ export const TeamMembersSection = ({
             <h4 style={{ margin: '0 0 8px 0', color: '#92400E', fontSize: '14px', fontWeight: 600 }}>
               Objectifs de marge non atteints
             </h4>
-            <p style={{ margin: '0 0 12px 0', color: '#78350F', fontSize: '13px', lineHeight: '1.5' }}>
-              {membersWithLowMargins.length} membre{membersWithLowMargins.length > 1 ? 's' : ''} de l'équipe {membersWithLowMargins.length > 1 ? 'ont' : 'a'} des marges inférieures aux objectifs du client :
-            </p>
-            <ul style={{ margin: '0 0 12px 0', paddingLeft: '20px', color: '#78350F', fontSize: '13px' }}>
-              {membersWithLowMargins.map((m, idx) => (
-                <li key={idx}>
-                  {m.firstName} {m.lastName} - Marge brute: {m.grossMarginPercent.toFixed(1)}% (min: {minMargin.toFixed(1)}%)
-                </li>
-              ))}
-            </ul>
-            <p style={{ margin: 0, color: '#78350F', fontSize: '13px', lineHeight: '1.5', fontWeight: 500 }}>
-              Vous pouvez soumettre la demande de validation. Le CFO examinera la constitution de l'équipe et validera ou rejetera le projet.
+            <p style={{ margin: 0, color: '#78350F', fontSize: '13px' }}>
+              {membersWithLowMargins.length} membre{membersWithLowMargins.length > 1 ? 's ont' : ' a'} des marges inférieures au minimum ({minMargin.toFixed(1)}%)
             </p>
           </div>
         </div>
       )}
 
-      {teamMembers.length === 0 ? (
+      {/* Grille des membres */}
+      {localMembers.length === 0 ? (
         <div className="wizard-empty-state">
           <div className="wizard-empty-icon">👥</div>
           <p className="wizard-empty-text">
-            Aucun membre d'équipe ajouté pour le moment.
+            Aucun membre d'équipe ajouté. Cliquez sur "Ajouter un nouveau membre" pour commencer.
           </p>
-          <button
-            type="button"
-            className="astek-btn astek-btn-primary"
-            onClick={onAdd}
-          >
-            Ajouter le premier membre
-          </button>
         </div>
       ) : (
-        <div className="wizard-team-list">
-          {teamMembers.map((member, index) => (
-            <div key={member.id} className="wizard-team-card">
-              <div className="wizard-team-card-header">
-                <span className="wizard-team-card-number">Membre #{index + 1}</span>
-                <button
-                  type="button"
-                  className="wizard-team-card-remove"
-                  onClick={() => onRemove(member.id)}
-                  title="Retirer ce membre"
-                >
-                  ×
-                </button>
-              </div>
-
-              {/* Email field - used for resource uniqueness check */}
-              <div className="astek-form-group">
-                <label className="astek-label">
-                  Email <span className="required-star">*</span>
-                </label>
-                <input
-                  type="email"
-                  className={`astek-input ${errors[`team_${index}_email`] ? 'is-invalid' : ''}`}
-                  value={member.email}
-                  onChange={(e) => {
-                    onChange(member.id, 'email', e.target.value);
-                  }}
-                  onBlur={(e) => {
-                    // Check resource existence when user leaves the email field
-                    checkResourceExists(e.target.value, member.id);
-                  }}
-                  placeholder="prenom.nom@astek.ca"
-                />
-                {errors[`team_${index}_email`] && (
-                  <div className="astek-error-message">{errors[`team_${index}_email`]}</div>
-                )}
-                
-                {/* Notification si la ressource existe déjà */}
-                {existingResourcesNotification[member.email] && (
-                  <div style={{
-                    marginTop: '8px',
-                    padding: '8px 12px',
-                    background: '#DBEAFE',
-                    border: '1px solid #3B82F6',
-                    borderRadius: '4px',
-                    fontSize: '13px',
-                    color: '#1E40AF',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '8px'
-                  }}>
-                    <span>ℹ️</span>
-                    <span>
-                      Cette ressource existe déjà dans la base de données. Les informations ont été pré-remplies automatiquement.
+        <div style={{ overflowX: 'auto' }}>
+          <table className="wizard-team-grid">
+            <thead>
+              <tr>
+                <th style={{ width: '30px' }}>#</th>
+                <th>Nom complet</th>
+                <th>Email</th>
+                <th>Rôle</th>
+                <th style={{ width: '100px' }}>Type</th>
+                <th style={{ width: '110px', textAlign: 'right' }}>Taux coût</th>
+                <th style={{ width: '110px', textAlign: 'right' }}>Taux vente</th>
+                <th style={{ width: '110px', textAlign: 'right' }}>Marge brute</th>
+                <th style={{ width: '90px', textAlign: 'right' }}>Marge %</th>
+                <th style={{ width: '100px', textAlign: 'center' }}>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {localMembers.map((member, index) => (
+                <tr key={member.id}>
+                  <td style={{ textAlign: 'center', color: '#6b7280', fontSize: '13px' }}>{index + 1}</td>
+                  <td>
+                    <div style={{ fontWeight: 600, color: '#1f2937' }}>
+                      {member.firstName} {member.lastName}
+                    </div>
+                  </td>
+                  <td style={{ fontSize: '13px', color: '#6b7280' }}>{member.email}</td>
+                  <td style={{ fontSize: '13px' }}>{member.role}</td>
+                  <td>
+                    <span style={{
+                      padding: '4px 8px',
+                      borderRadius: '4px',
+                      fontSize: '12px',
+                      fontWeight: 500,
+                      background: member.resourceType === 'Employé' ? '#DBEAFE' : '#FEF3C7',
+                      color: member.resourceType === 'Employé' ? '#1E40AF' : '#92400E'
+                    }}>
+                      {member.resourceType}
                     </span>
-                  </div>
-                )}
-              </div>
-
-              <div className="astek-row">
-                <div className="astek-col-2">
-                  <div className="astek-form-group">
-                    <label className="astek-label">
-                      Prénom <span className="required-star">*</span>
-                    </label>
-                    <input
-                      type="text"
-                      className={`astek-input ${errors[`team_${index}_firstName`] ? 'is-invalid' : ''}`}
-                      value={member.firstName}
-                      onChange={(e) => onChange(member.id, 'firstName', e.target.value)}
-                      placeholder="Prénom"
-                    />
-                    {errors[`team_${index}_firstName`] && (
-                      <div className="astek-error-message">{errors[`team_${index}_firstName`]}</div>
-                    )}
-                  </div>
-                </div>
-
-                <div className="astek-col-2">
-                  <div className="astek-form-group">
-                    <label className="astek-label">
-                      Nom <span className="required-star">*</span>
-                    </label>
-                    <input
-                      type="text"
-                      className={`astek-input ${errors[`team_${index}_lastName`] ? 'is-invalid' : ''}`}
-                      value={member.lastName}
-                      onChange={(e) => onChange(member.id, 'lastName', e.target.value)}
-                      placeholder="Nom"
-                    />
-                    {errors[`team_${index}_lastName`] && (
-                      <div className="astek-error-message">{errors[`team_${index}_lastName`]}</div>
-                    )}
-                  </div>
-                </div>
-              </div>
-
-              <div className="astek-row">
-                <div className="astek-col-2">
-                  <div className="astek-form-group">
-                    <label className="astek-label">
-                      Rôle <span className="required-star">*</span>
-                    </label>
-                    <input
-                      type="text"
-                      className={`astek-input ${errors[`team_${index}_role`] ? 'is-invalid' : ''}`}
-                      value={member.role}
-                      onChange={(e) => onChange(member.id, 'role', e.target.value)}
-                      placeholder="Ex: Développeur, PO, Architecte"
-                    />
-                    {errors[`team_${index}_role`] && (
-                      <div className="astek-error-message">{errors[`team_${index}_role`]}</div>
-                    )}
-                  </div>
-                </div>
-
-                <div className="astek-col-2">
-                  <div className="astek-form-group">
-                    <label className="astek-label">
-                      Type de ressource <span className="required-star">*</span>
-                    </label>
-                    <select
-                      className="astek-select"
-                      value={member.resourceType}
-                      onChange={(e) => onChange(member.id, 'resourceType', e.target.value as ResourceType)}
-                    >
-                      <option value="Employé">Employé</option>
-                      <option value="Pigiste">Pigiste</option>
-                    </select>
-                  </div>
-                </div>
-              </div>
-
-              <div className="astek-row">
-                <div className="astek-col-2">
-                  <div className="astek-form-group">
-                    <label className="astek-label">
-                      Taux coûtant ($/h) <span className="required-star">*</span>
-                    </label>
-                    <input
-                      type="number"
-                      className={`astek-input ${errors[`team_${index}_cost`] ? 'is-invalid' : ''}`}
-                      value={member.internalCostRate}
-                      onChange={(e) => onChange(member.id, 'internalCostRate', parseFloat(e.target.value) || 0)}
-                      min="0"
-                      step="0.01"
-                    />
-                    {errors[`team_${index}_cost`] && (
-                      <div className="astek-error-message">{errors[`team_${index}_cost`]}</div>
-                    )}
-                  </div>
-                </div>
-
-                <div className="astek-col-2">
-                  <div className="astek-form-group">
-                    <label className="astek-label">
-                      Taux vendant ($/h) <span className="required-star">*</span>
-                    </label>
-                    <input
-                      type="number"
-                      className={`astek-input ${errors[`team_${index}_bill`] ? 'is-invalid' : ''}`}
-                      value={member.proposedBillRate}
-                      onChange={(e) => onChange(member.id, 'proposedBillRate', parseFloat(e.target.value) || 0)}
-                      min="0"
-                      step="0.01"
-                    />
-                    {errors[`team_${index}_bill`] && (
-                      <div className="astek-error-message">{errors[`team_${index}_bill`]}</div>
-                    )}
-                  </div>
-                </div>
-              </div>
-
-              {/* Calculated Margins Display */}
-              <div className="wizard-team-margins">
-                <div className="wizard-team-margin-item">
-                  <span className="wizard-team-margin-label">Marge brute:</span>
-                  <span className="wizard-team-margin-value">
-                    {member.grossMarginAmount.toFixed(2)} $ 
-                    ({member.grossMarginPercent.toFixed(1)}%)
-                  </span>
-                </div>
-                <div className="wizard-team-margin-item">
-                  <span className="wizard-team-margin-label">Marge nette:</span>
-                  <span className="wizard-team-margin-value">
-                    {member.netMarginPercent.toFixed(1)}%
-                  </span>
-                </div>
-              </div>
-            </div>
-          ))}
+                  </td>
+                  <td style={{ textAlign: 'right', fontSize: '14px', fontFamily: 'monospace' }}>
+                    {member.internalCostRate.toFixed(2)} $
+                  </td>
+                  <td style={{ textAlign: 'right', fontSize: '14px', fontFamily: 'monospace' }}>
+                    {member.proposedBillRate.toFixed(2)} $
+                  </td>
+                  <td style={{ textAlign: 'right', fontSize: '14px', fontFamily: 'monospace' }}>
+                    {member.grossMarginAmount.toFixed(2)} $
+                  </td>
+                  <td style={{ textAlign: 'right', fontSize: '14px', fontWeight: 600 }}>
+                    <span style={{ color: member.grossMarginPercent >= minMargin ? '#00A859' : '#DC2626' }}>
+                      {member.grossMarginPercent.toFixed(1)}%
+                    </span>
+                  </td>
+                  <td style={{ textAlign: 'center' }}>
+                    <div style={{ display: 'flex', gap: '4px', justifyContent: 'center' }}>
+                      <button
+                        type="button"
+                        onClick={() => handleEditClick(member, index)}
+                        style={{
+                          background: 'none',
+                          border: '1px solid #d1d5db',
+                          padding: '6px 10px',
+                          borderRadius: '4px',
+                          cursor: 'pointer',
+                          fontSize: '14px',
+                          color: '#6b7280',
+                          transition: 'all 0.2s'
+                        }}
+                        onMouseOver={(e) => {
+                          e.currentTarget.style.background = '#f3f4f6';
+                          e.currentTarget.style.borderColor = '#9ca3af';
+                        }}
+                        onMouseOut={(e) => {
+                          e.currentTarget.style.background = 'none';
+                          e.currentTarget.style.borderColor = '#d1d5db';
+                        }}
+                        title="Modifier"
+                      >
+                        ✏️
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => handleRemoveClick(member.id)}
+                        style={{
+                          background: 'none',
+                          border: '1px solid #d1d5db',
+                          padding: '6px 10px',
+                          borderRadius: '4px',
+                          cursor: 'pointer',
+                          fontSize: '14px',
+                          color: '#dc2626',
+                          transition: 'all 0.2s'
+                        }}
+                        onMouseOver={(e) => {
+                          e.currentTarget.style.background = '#fee';
+                          e.currentTarget.style.borderColor = '#dc2626';
+                        }}
+                        onMouseOut={(e) => {
+                          e.currentTarget.style.background = 'none';
+                          e.currentTarget.style.borderColor = '#d1d5db';
+                        }}
+                        title="Supprimer"
+                      >
+                        🗑️
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
+      )}
+
+      {/* Modal */}
+      {isModalOpen && editingMember && (
+        <TeamMemberModal
+          isOpen={isModalOpen}
+          member={editingMember.member}
+          isEditMode={editingMember.index !== -1}
+          onClose={handleModalClose}
+          onSave={handleModalSave}
+          errors={errors}
+          memberIndex={editingMember.index === -1 ? teamMembers.length : editingMember.index}
+        />
       )}
     </div>
   );

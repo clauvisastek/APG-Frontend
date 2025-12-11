@@ -6,14 +6,23 @@ import type {
   ResourceKPIs,
   CreateResourceInput 
 } from '../types/resource';
+import { getAuthToken } from '../utils/authFetch';
 
 const API_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5001';
+
+// Helper function to get auth headers
+const getAuthHeaders = async () => {
+  const token = await getAuthToken();
+  return token ? { Authorization: `Bearer ${token}` } : {};
+};
 
 // Helper to transform backend resource to frontend format
 const transformResource = (backendResource: any): Resource => {
   return {
     id: backendResource.id.toString(),
     name: backendResource.name,
+    firstName: backendResource.firstName,
+    lastName: backendResource.lastName,
     businessUnitCode: backendResource.businessUnit?.code || '',
     jobType: backendResource.jobType,
     seniority: backendResource.seniority,
@@ -41,13 +50,17 @@ export const resourcesApi = {
     if (filters?.seniority) params.append('seniority', filters.seniority);
     if (filters?.status) params.append('status', filters.status);
     
-    const response = await axios.get(`${API_URL}/api/Resources?${params.toString()}`);
+    const response = await axios.get(`${API_URL}/api/Resources?${params.toString()}`, {
+      headers: await getAuthHeaders(),
+    });
     return response.data.map(transformResource);
   },
 
   getById: async (id: string): Promise<Resource | undefined> => {
     try {
-      const response = await axios.get(`${API_URL}/api/Resources/${id}`);
+      const response = await axios.get(`${API_URL}/api/Resources/${id}`, {
+        headers: await getAuthHeaders(),
+      });
       return transformResource(response.data);
     } catch (error: any) {
       if (error.response?.status === 404) {
@@ -59,7 +72,9 @@ export const resourcesApi = {
 
   getByEmail: async (email: string): Promise<Resource | undefined> => {
     try {
-      const response = await axios.get(`${API_URL}/api/Resources/by-email/${encodeURIComponent(email)}`);
+      const response = await axios.get(`${API_URL}/api/Resources/by-email/${encodeURIComponent(email)}`, {
+        headers: await getAuthHeaders(),
+      });
       return transformResource(response.data);
     } catch (error: any) {
       if (error.response?.status === 404) {
@@ -71,7 +86,9 @@ export const resourcesApi = {
 
   getMissionHistory: async (resourceId: string): Promise<ResourceMissionHistory[]> => {
     try {
-      const response = await axios.get(`${API_URL}/api/Resources/${resourceId}/history`);
+      const response = await axios.get(`${API_URL}/api/Resources/${resourceId}/history`, {
+        headers: await getAuthHeaders(),
+      });
       return response.data.map((pr: any) => ({
         id: pr.id.toString(),
         resourceId: pr.resourceId.toString(),
@@ -125,7 +142,9 @@ export const resourcesApi = {
   },
 
   create: async (input: CreateResourceInput): Promise<Resource> => {
-    const buResponse = await axios.get(`${API_URL}/api/BusinessUnits`);
+    const buResponse = await axios.get(`${API_URL}/api/BusinessUnits`, {
+      headers: await getAuthHeaders(),
+    });
     const businessUnit = buResponse.data.find((bu: any) => bu.code === input.businessUnitCode);
     
     if (!businessUnit) {
@@ -150,7 +169,9 @@ export const resourcesApi = {
       phone: input.phone,
     };
     
-    const response = await axios.post(`${API_URL}/api/Resources`, payload);
+    const response = await axios.post(`${API_URL}/api/Resources`, payload, {
+      headers: await getAuthHeaders(),
+    });
     return transformResource(response.data);
   },
 
@@ -158,7 +179,9 @@ export const resourcesApi = {
     let businessUnitId: number | undefined;
     
     if (input.businessUnitCode) {
-      const buResponse = await axios.get(`${API_URL}/api/BusinessUnits`);
+      const buResponse = await axios.get(`${API_URL}/api/BusinessUnits`, {
+        headers: await getAuthHeaders(),
+      });
       const businessUnit = buResponse.data.find((bu: any) => bu.code === input.businessUnitCode);
       if (businessUnit) {
         businessUnitId = businessUnit.id;
@@ -185,11 +208,15 @@ export const resourcesApi = {
     if (input.manager !== undefined) payload.manager = input.manager;
     if (input.phone !== undefined) payload.phone = input.phone;
     
-    const response = await axios.put(`${API_URL}/api/Resources/${id}`, payload);
+    const response = await axios.put(`${API_URL}/api/Resources/${id}`, payload, {
+      headers: await getAuthHeaders(),
+    });
     return transformResource(response.data);
   },
 
   remove: async (id: string): Promise<void> => {
-    await axios.delete(`${API_URL}/api/Resources/${id}`);
+    await axios.delete(`${API_URL}/api/Resources/${id}`, {
+      headers: await getAuthHeaders(),
+    });
   },
 };

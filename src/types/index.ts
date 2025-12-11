@@ -143,24 +143,6 @@ export interface CreateProjectInput {
   businessUnitId: string;
 }
 
-export interface EditProjectProfitabilityPayload {
-  targetMargin?: number;
-  minMargin?: number;
-  teamMembers?: TeamMember[];
-  notes?: string;
-}
-
-export interface ProjectChangeRequest {
-  id: string;
-  projectId: string;
-  previousValues: EditProjectProfitabilityPayload;
-  newValues: EditProjectProfitabilityPayload;
-  requestedByUserId: string;
-  requestedByEmail: string;
-  requestedAt: string;
-  status: 'PENDING_CFO_APPROVAL' | 'APPROVED' | 'REJECTED';
-  approverEmail?: string;
-}
 
 // Business Unit Types
 export interface BusinessUnit {

@@ -66,35 +66,24 @@ export const projectApi = {
     });
   },
 
-  // Update non-critical project fields (optimistic update - no validation required)
-  updateNonCritical: async (
-    id: string,
-    updates: {
-      name?: string;
-      code?: string;
-      startDate?: string;
-      endDate?: string;
-      notes?: string;
-    }
-  ): Promise<Project> => {
-    return fetchWithAuth<Project>(`${API_BASE_URL}/api/Projects/${id}`, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(updates),
-    });
-  },
-
   // Update project (all fields including team and margins)
   update: async (
     id: string,
     updates: {
-      name?: string;
-      code?: string;
-      type?: string;
-      startDate?: string;
-      endDate?: string;
-      targetMargin?: number;
-      minMargin?: number;
+      name: string;
+      code: string;
+      clientId: number;
+      businessUnitId: number;
+      type: string;
+      responsibleName?: string;
+      currency: string;
+      startDate: string;
+      endDate: string;
+      targetMargin: number;
+      minMargin: number;
+      status: string;
+      notes?: string;
+      ytdRevenue?: number;
       teamMembers?: Array<{
         email: string;
         name: string;
@@ -156,53 +145,7 @@ export const businessUnitApi = {
   },
 };
 
-// API functions for Project Change Requests
-export const projectChangeRequestApi = {
-  // Submit project edit for validation
-  submitEditForValidation: async (
-    projectId: string,
-    previousValues: import('../types').EditProjectProfitabilityPayload,
-    newValues: import('../types').EditProjectProfitabilityPayload,
-    userEmail: string,
-    approverEmail: string
-  ): Promise<import('../types').ProjectChangeRequest> => {
-    return fetchWithAuth<import('../types').ProjectChangeRequest>(`${API_BASE_URL}/api/ProjectChangeRequests`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        projectId,
-        previousValues,
-        newValues,
-        requestedByEmail: userEmail,
-        approverEmail,
-      }),
-    });
-  },
 
-  // Get all change requests
-  getAll: async (): Promise<import('../types').ProjectChangeRequest[]> => {
-    return fetchWithAuth<import('../types').ProjectChangeRequest[]>(`${API_BASE_URL}/api/ProjectChangeRequests`);
-  },
-
-  // Get change requests by project ID
-  getByProjectId: async (projectId: string): Promise<import('../types').ProjectChangeRequest[]> => {
-    return fetchWithAuth<import('../types').ProjectChangeRequest[]>(`${API_BASE_URL}/api/ProjectChangeRequests?projectId=${projectId}`);
-  },
-
-  // Approve change request (Admin/CFO only)
-  approve: async (requestId: string): Promise<void> => {
-    await fetchWithAuth<void>(`${API_BASE_URL}/api/ProjectChangeRequests/${requestId}/approve`, {
-      method: 'POST',
-    });
-  },
-
-  // Reject change request
-  reject: async (requestId: string): Promise<void> => {
-    await fetchWithAuth<void>(`${API_BASE_URL}/api/ProjectChangeRequests/${requestId}/reject`, {
-      method: 'POST',
-    });
-  },
-};
 
 // Margin simulation API
 export const marginApi = {

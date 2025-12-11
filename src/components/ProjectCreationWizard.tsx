@@ -319,9 +319,19 @@ export const ProjectCreationWizard = ({
   };
 
   const handleAddTeamMember = () => {
+    // Créer un NOUVEAU membre avec toutes les propriétés copiées (pas de référence partagée)
     const newMember: ProjectTeamMember = {
-      ...emptyTeamMember,
       id: `member-${Date.now()}-${Math.random()}`,
+      email: '',
+      firstName: '',
+      lastName: '',
+      role: '',
+      resourceType: 'Employé',
+      internalCostRate: 0,
+      proposedBillRate: 0,
+      grossMarginAmount: 0,
+      grossMarginPercent: 0,
+      netMarginPercent: 0,
     };
     setProjectData(prev => ({
       ...prev,
@@ -334,6 +344,56 @@ export const ProjectCreationWizard = ({
       ...prev,
       teamMembers: prev.teamMembers.filter(m => m.id !== id),
     }));
+  };
+
+  const handleAddMemberComplete = (member: ProjectTeamMember) => {
+    setProjectData(prev => ({
+      ...prev,
+      teamMembers: [...prev.teamMembers, member],
+    }));
+  };
+
+  const handleUpdateMemberComplete = (updatedMember: ProjectTeamMember) => {
+    setProjectData(prev => {
+      // Créer un NOUVEAU tableau avec des NOUVELLES copies de chaque membre
+      const newMembers = prev.teamMembers.map(m => {
+        if (m.id === updatedMember.id) {
+          // Pour le membre modifié, retourner une copie complète des nouvelles données
+          return {
+            id: updatedMember.id,
+            email: updatedMember.email,
+            firstName: updatedMember.firstName,
+            lastName: updatedMember.lastName,
+            role: updatedMember.role,
+            resourceType: updatedMember.resourceType,
+            internalCostRate: updatedMember.internalCostRate,
+            proposedBillRate: updatedMember.proposedBillRate,
+            grossMarginAmount: updatedMember.grossMarginAmount,
+            grossMarginPercent: updatedMember.grossMarginPercent,
+            netMarginPercent: updatedMember.netMarginPercent,
+          };
+        }
+        // Pour les autres membres, créer une nouvelle copie avec leurs valeurs actuelles
+        return {
+          id: m.id,
+          email: m.email,
+          firstName: m.firstName,
+          lastName: m.lastName,
+          role: m.role,
+          resourceType: m.resourceType,
+          internalCostRate: m.internalCostRate,
+          proposedBillRate: m.proposedBillRate,
+          grossMarginAmount: m.grossMarginAmount,
+          grossMarginPercent: m.grossMarginPercent,
+          netMarginPercent: m.netMarginPercent,
+        };
+      });
+      
+      return {
+        ...prev,
+        teamMembers: newMembers,
+      };
+    });
   };
 
   const handleTeamMemberChange = (id: string, field: keyof ProjectTeamMember, value: any) => {
@@ -493,6 +553,8 @@ export const ProjectCreationWizard = ({
                     onAdd={handleAddTeamMember}
                     onRemove={handleRemoveTeamMember}
                     onChange={handleTeamMemberChange}
+                    onAddMember={handleAddMemberComplete}
+                    onUpdateMember={handleUpdateMemberComplete}
                     targetMargin={projectData.margins.targetMarginPercent}
                     minMargin={projectData.margins.minMarginPercent}
                   />

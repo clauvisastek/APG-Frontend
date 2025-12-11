@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useAuth0 } from '@auth0/auth0-react';
+import { toast } from 'react-toastify';
 import type { BusinessUnitFilter } from '../hooks/useUserBusinessUnitFilter';
 import type { Project } from '../types';
 import { useUpdateProject } from '../hooks/useApi';
@@ -97,45 +98,6 @@ const emptyTeamMember: Omit<ProjectTeamMember, 'id'> = {
   netMarginPercent: 0,
 };
 
-/**
- * Check if profitability fields have changed
- */
-const hasProfitabilityChanges = (
-  original: Project,
-  updated: ProjectWizardStep1Values
-): boolean => {
-  // Check margins
-  if (
-    original.targetMargin !== updated.margins.targetMarginPercent ||
-    original.minMargin !== updated.margins.minMarginPercent
-  ) {
-    return true;
-  }
-
-  // Check team members
-  const originalTeamSize = original.teamMembers?.length || 0;
-  const updatedTeamSize = updated.teamMembers.length;
-
-  if (originalTeamSize !== updatedTeamSize) {
-    return true;
-  }
-
-  // Compare team members details
-  for (let i = 0; i < originalTeamSize; i++) {
-    const origMember = original.teamMembers![i];
-    const updMember = updated.teamMembers[i];
-
-    if (
-      origMember.costRate !== updMember.internalCostRate ||
-      origMember.sellRate !== updMember.proposedBillRate
-    ) {
-      return true;
-    }
-  }
-
-  return false;
-};
-
 // ============================================================================
 // MAIN COMPONENT
 // ============================================================================
@@ -187,6 +149,56 @@ export const EditProjectWizard = ({
       ...prev,
       teamMembers: prev.teamMembers.filter((m) => m.id !== id),
     }));
+  };
+
+  const handleAddMemberComplete = (member: ProjectTeamMember) => {
+    setProjectData((prev) => ({
+      ...prev,
+      teamMembers: [...prev.teamMembers, member],
+    }));
+  };
+
+  const handleUpdateMemberComplete = (updatedMember: ProjectTeamMember) => {
+    setProjectData((prev) => {
+      // Créer un NOUVEAU tableau avec des NOUVELLES copies de chaque membre
+      const newMembers = prev.teamMembers.map((m) => {
+        if (m.id === updatedMember.id) {
+          // Pour le membre modifié, retourner une copie complète des nouvelles données
+          return {
+            id: updatedMember.id,
+            email: updatedMember.email,
+            firstName: updatedMember.firstName,
+            lastName: updatedMember.lastName,
+            role: updatedMember.role,
+            resourceType: updatedMember.resourceType,
+            internalCostRate: updatedMember.internalCostRate,
+            proposedBillRate: updatedMember.proposedBillRate,
+            grossMarginAmount: updatedMember.grossMarginAmount,
+            grossMarginPercent: updatedMember.grossMarginPercent,
+            netMarginPercent: updatedMember.netMarginPercent,
+          };
+        }
+        // Pour les autres membres, créer une nouvelle copie avec leurs valeurs actuelles
+        return {
+          id: m.id,
+          email: m.email,
+          firstName: m.firstName,
+          lastName: m.lastName,
+          role: m.role,
+          resourceType: m.resourceType,
+          internalCostRate: m.internalCostRate,
+          proposedBillRate: m.proposedBillRate,
+          grossMarginAmount: m.grossMarginAmount,
+          grossMarginPercent: m.grossMarginPercent,
+          netMarginPercent: m.netMarginPercent,
+        };
+      });
+      
+      return {
+        ...prev,
+        teamMembers: newMembers,
+      };
+    });
   };
 
   const handleTeamMemberChange = (id: string, field: keyof ProjectTeamMember, value: any) => {
@@ -372,28 +384,35 @@ export const EditProjectWizard = ({
         netMargin: m.netMarginPercent,
       }));
 
-      // Update the project with all changes
+      // Update the project with all required fields
       await updateProject.mutateAsync({
         id: project.id.toString(),
         updates: {
           name: projectData.name,
           code: projectData.code,
+          clientId: parseInt(project.clientId),
+          businessUnitId: parseInt(project.businessUnit.id),
           type: projectData.type,
+          responsibleName: project.responsibleName || projectData.projectManager,
+          currency: projectData.currency,
           startDate: projectData.startDate,
           endDate: projectData.endDate,
           targetMargin: projectData.margins.targetMarginPercent,
           minMargin: projectData.margins.minMarginPercent,
+          status: project.status || 'Active',
+          notes: project.notes,
+          ytdRevenue: project.ytdRevenue,
           teamMembers: teamMembersDto,
         },
       });
 
-      alert('Les modifications ont été enregistrées avec succès.');
+      toast.success(`Projet "${project.name}" mis à jour avec succès !`);
       onSuccess();
       onClose();
     } catch (error: any) {
       console.error('Error updating project:', error);
       const errorMessage = error?.message || 'Une erreur est survenue lors de la mise à jour du projet.';
-      alert(errorMessage);
+      toast.error(errorMessage);
     } finally {
       setIsSubmitting(false);
     }
@@ -493,6 +512,8 @@ export const EditProjectWizard = ({
                     onAdd={handleAddTeamMember}
                     onRemove={handleRemoveTeamMember}
                     onChange={handleTeamMemberChange}
+                    onAddMember={handleAddMemberComplete}
+                    onUpdateMember={handleUpdateMemberComplete}
                   />
                 )}
               </div>

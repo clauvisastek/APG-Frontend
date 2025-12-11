@@ -5,6 +5,8 @@ export type ResourceStatus = "Actif en mission" | "Disponible" | "En intercontra
 export interface Resource {
   id: string;
   name: string;
+  firstName?: string;
+  lastName?: string;
   businessUnitCode: string;
   jobType: JobType;
   seniority: Seniority;

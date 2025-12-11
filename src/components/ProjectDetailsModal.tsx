@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ReferenceLine } from 'recharts';
 import type { Project, TeamMember } from '../types';
 import './ProjectDetailsModal.css';
 
@@ -29,6 +29,11 @@ export const ProjectDetailsModal = ({ project, isOpen, onClose }: ProjectDetails
 
   // Use real data from project - no mocks
   const marginHistory = project.globalMarginHistory || [];
+  
+  // Calculate current margin from latest history value
+  const currentMargin = marginHistory.length > 0 
+    ? marginHistory[marginHistory.length - 1].value 
+    : project.targetMargin;
   const teamMembers: TeamMember[] = project.teamMembers || [];
 
   // Prepare team members data for chart
@@ -152,8 +157,13 @@ export const ProjectDetailsModal = ({ project, isOpen, onClose }: ProjectDetails
               <div className="info-divider"></div>
 
               <div className="info-row highlight">
-                <span className="info-label">Marge globale:</span>
-                <span className="info-value-large">{project.targetMargin}%</span>
+                <span className="info-label">Marge actuelle:</span>
+                <span className="info-value-large">{currentMargin.toFixed(2)}%</span>
+              </div>
+
+              <div className="info-row">
+                <span className="info-label">Marge cible CFO:</span>
+                <span className="info-value">{project.targetMargin}%</span>
               </div>
 
               <div className="info-row">
@@ -216,6 +226,19 @@ export const ProjectDetailsModal = ({ project, isOpen, onClose }: ProjectDetails
                       }}
                       formatter={(value: number) => [`${Number(value).toFixed(2)}%`, 'Marge globale']}
                       labelFormatter={(label) => `Date: ${label}`}
+                    />
+                    <ReferenceLine 
+                      y={project.targetMargin} 
+                      stroke="#f59e0b" 
+                      strokeDasharray="5 5"
+                      strokeWidth={2}
+                      label={{ 
+                        value: `Cible CFO: ${project.targetMargin}%`, 
+                        position: 'top',
+                        fill: '#f59e0b',
+                        fontSize: 12,
+                        fontWeight: 600
+                      }}
                     />
                     <Line 
                       type="monotone" 
